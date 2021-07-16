@@ -1,0 +1,68 @@
+{
+  "name": "use-interactions",
+  "description": "Reusable and common web interactions with WCAG accessibility criteria for React",
+  "version": "1.0.0",
+  "main": "dist/use-interactions.js",
+  "module": "dist/use-interactions.es.js",
+  "types": "dist/types/index.d.ts",
+  "source": "src/index.ts",
+  "sideEffects": false,
+  "license": "MIT",
+  "files": [
+    "LICENSE",
+    "README.md",
+    "dist/"
+  ],
+  "keywords": [
+    "interactions",
+    "modal",
+    "dialog",
+    "a11y",
+    "accessibility",
+    "react",
+    "hook"
+  ],
+  "repository": "https://github.com/FormidableLabs/use-interactions",
+  "bugs": {
+    "url": "https://github.com/FormidableLabs/use-interactions/issues"
+  },
+  "scripts": {
+    "check": "tsc",
+    "build": "rollup -c rollup.config.js",
+    "prepublishOnly": "run-s check build"
+  },
+  "prettier": {
+    "singleQuote": true,
+    "arrowParens": "avoid",
+    "trailingComma": "es5"
+  },
+  "lint-staged": {
+    "*.{js,ts}": "prettier --write",
+    "*.json": "prettier --write",
+    "*.md": "prettier --write"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged --quiet --relative"
+    }
+  },
+  "peerDependencies": {
+    "react": ">= 16.8.0"
+  },
+  "devDependencies": {
+    "@rollup/plugin-buble": "^0.21.3",
+    "@rollup/plugin-commonjs": "^15.0.0",
+    "@rollup/plugin-node-resolve": "^9.0.0",
+    "@types/react": "^16.9.49",
+    "husky": "^4.3.0",
+    "lint-staged": "^10.4.0",
+    "npm-run-all": "^4.1.5",
+    "prettier": "^2.1.2",
+    "react": "^16.13.1",
+    "rollup": "^2.27.1",
+    "rollup-plugin-babel": "^4.4.0",
+    "rollup-plugin-terser": "^7.0.2",
+    "rollup-plugin-typescript2": "^0.27.2",
+    "typescript": "^4.0.3"
+  }
+}
