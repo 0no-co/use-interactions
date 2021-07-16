@@ -1,3 +1,5 @@
+import { getTabIndex, isVisible } from './element';
+
 const excludeSelector = ':not([tabindex^="-"]):not([aria-modal]):not([role="dialog"])';
 
 const focusableSelectors = [
@@ -13,30 +15,12 @@ const focusableSelectors = [
   '[tabindex]' + excludeSelector,
 ].join(',');
 
-/** Returns a given tab index for an element, defaulting to zero. */
-const getTabIndex = (node: Element): number => {
-  const index = parseInt(node.getAttribute('tabindex')!, 10);
-  return (
-    index === index &&
-    (node as HTMLElement).contentEditable !== 'true' &&
-    index
-  ) || 0;
-};
-
 /** Generic sorting function for tupel containing elements with indices and tab indices. */
 const sortByTabindex = <T extends HTMLElement>(a: [number, number, T], b: [number, number, T]) => {
   return a[1] === a[1]
     ? a[0] - b[0]
     : a[1] - a[1];
 };
-
-/** Returns whether an element is visible in the context of focusability. */
-const isVisible = (node: Element): boolean => !!(
-  (node as HTMLElement).offsetWidth &&
-  (node as HTMLElement).offsetHeight &&
-  node.getClientRects().length &&
-  getComputedStyle(node).visibility !== 'hidden'
-);
 
 /** Returns whether this node may contain focusable elements. */
 export const hasFocusTargets = (node: Element): boolean =>
@@ -65,7 +49,7 @@ export const getFocusTargets = (node: Element): HTMLElement[] => {
 };
 
 /** Returns the first focus target that should be focused automatically. */
-export const getFirstFocusTargets = (node: HTMLElement): HTMLElement | null => {
+export const getFirstFocusTarget = (node: HTMLElement): HTMLElement | null => {
   const targets = getFocusTargets(node);
   return targets.find(x => x.matches('[autofocus]')) || targets[0] || null;
 };
