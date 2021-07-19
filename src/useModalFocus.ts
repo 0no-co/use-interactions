@@ -1,16 +1,30 @@
-import { useLayoutEffect } from 'react';
+import { RestoreSelection, snapshotSelection, restoreSelection } from './utils/selection';
 import { getFirstFocusTarget, getFocusTargets } from './utils/focus';
+import { useLayoutEffect } from './utils/react';
 import { contains } from './utils/element';
+import { makePriorityHook } from './usePriority';
 import { Ref } from './types';
 
-export function useFocusLoop<T extends HTMLElement>(ref: Ref<T>) {
-  useLayoutEffect(() => {
-    if (!ref.current) return;
+const usePriority = makePriorityHook();
 
-    let active = document.activeElement as HTMLElement | null;
-    if (!active || !ref.current.contains(active)) {
-      active = getFirstFocusTarget(ref.current);
-      if (active) active.focus();
+export interface ModalFocusOptions {
+  disabled?: boolean;
+}
+
+export function useModalFocus<T extends HTMLElement>(ref: Ref<T>, options?: ModalFocusOptions) {
+  const disabled = !!(options && options.disabled);
+  const hasPriority = usePriority(ref, disabled);
+
+  useLayoutEffect(() => {
+    if (!ref.current || !hasPriority || disabled) return;
+
+    let selection: RestoreSelection | null = null;
+    if (!document.activeElement || !ref.current.contains(document.activeElement)) {
+      const newTarget = getFirstFocusTarget(ref.current);
+      if (newTarget) {
+        selection = snapshotSelection(ref.current);
+        newTarget.focus();
+      }
     }
 
     function onBlur(event: FocusEvent) {
@@ -46,8 +60,9 @@ export function useFocusLoop<T extends HTMLElement>(ref: Ref<T>) {
     document.addEventListener('keydown', onKeyDown);
 
     return () => {
+      restoreSelection(selection);
       document.body.removeEventListener('focusout', onBlur);
       document.removeEventListener('keydown', onKeyDown);
     };
-  }, [ref]);
+  }, [ref, hasPriority, disabled]);
 }

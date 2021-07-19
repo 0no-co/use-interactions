@@ -55,12 +55,14 @@ export const getFirstFocusTarget = (node: HTMLElement): HTMLElement | null => {
 };
 
 /** Returns the next (optionally in reverse) focus target given a target node. */
-export const getNextFocusTarget = (node: HTMLElement, reverse?: boolean) => {
+export const getNextFocusTarget = (node: HTMLElement, reverse?: boolean): HTMLElement | null => {
   let current: Element | null = node;
   while (current) {
     let next: Element | null = current;
     while (next = reverse ? next.previousElementSibling : next.nextElementSibling) {
-      if (hasFocusTargets(next)) {
+      if (isVisible(next) && !!node.matches(focusableSelectors)) {
+        return next as HTMLElement;
+      } else if (hasFocusTargets(next)) {
         const targets = getFocusTargets(next);
         if (targets.length)
           return targets[reverse ? targets.length - 1 : 0];

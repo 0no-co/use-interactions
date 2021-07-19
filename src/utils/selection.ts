@@ -1,18 +1,16 @@
-type NodeRef = { current?: HTMLElement | null | void } & HTMLElement;
-
 interface RestoreInputSelection {
-  element: NodeRef,
+  element: HTMLElement,
   method: 'setSelectionRange',
   arguments: [number, number, 'forward' | 'backward' | 'none' | undefined],
 }
 
 interface RestoreActiveNode {
-  element: NodeRef,
+  element: HTMLElement,
   method: 'focus',
 }
 
 interface RestoreSelectionRange {
-  element: NodeRef,
+  element: HTMLElement,
   method: 'range',
   range: Range
 }
@@ -26,9 +24,9 @@ const isInputElement = (node: HTMLElement): node is HTMLInputElement => (
 );
 
 /** Snapshots the current focus or selection target, optinally using a ref if it's passed. */
-export const snapshotSelection = (node?: NodeRef): RestoreSelection | null => {
+export const snapshotSelection = (node?: HTMLElement | null): RestoreSelection | null => {
   const target = document.activeElement as HTMLElement | null;
-  const element: NodeRef | null = node && target && (node !== target || (node as any).current !== target) ? node : target;
+  const element = node && target && node !== target ? node : target;
   if (!element || !target) {
     return null;
   } else if (isInputElement(target)) {
@@ -50,7 +48,7 @@ export const snapshotSelection = (node?: NodeRef): RestoreSelection | null => {
 
 /** Restores a given snapshot of a selection, falling back to a simple focus. */
 export const restoreSelection = (restore: RestoreSelection | null) => {
-  const target = restore && restore.element && (restore.element.current || restore.element);
+  const target = restore && restore.element;
   if (!restore || !target || !target.parentNode) {
     return;
   } else if (restore.method === 'setSelectionRange' && isInputElement(target)) {
