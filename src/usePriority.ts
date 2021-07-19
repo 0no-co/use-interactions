@@ -10,10 +10,10 @@ export const makePriorityHook = () => {
   const sortByHierarchy = (a: HTMLElement, b: HTMLElement) => {
     const x = a.compareDocumentPosition(b);
     return (
-      (x & 16 /* a contains b */ && -1) ||
-      (x & 8 /* b contains a */ && 1) ||
-      (x & 2 /* b follows a */ && -1) ||
-      (x & 4 /* a follows b */ && 1) ||
+      (x & 16 /* a contains b */ && 1) ||
+      (x & 8 /* b contains a */ && -1) ||
+      (x & 2 /* b follows a */ && 1) ||
+      (x & 4 /* a follows b */ && -1) ||
       0
     );
   };
@@ -26,7 +26,7 @@ export const makePriorityHook = () => {
     function computeHasPriority(): boolean {
       if (!ref.current) return false;
       const tempStack = priorityStack.concat(ref.current).sort(sortByHierarchy);
-      return tempStack[tempStack.length - 1] === ref.current;
+      return tempStack[0] === ref.current;
     }
 
     const isDisabled = !!disabled;
