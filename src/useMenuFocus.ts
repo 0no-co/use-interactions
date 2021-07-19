@@ -1,5 +1,5 @@
 import { RestoreSelection, snapshotSelection, restoreSelection } from './utils/selection';
-import { getFocusTargets } from './utils/focus';
+import { getFirstFocusTarget, getFocusTargets } from './utils/focus';
 import { useLayoutEffect } from './utils/react';
 import { contains, isInputElement } from './utils/element';
 import { Ref } from './types';
@@ -72,7 +72,15 @@ export function useMenuFocus<T extends HTMLElement>(ref: Ref<T>, options?: MenuF
         // Implement End => last item
         event.preventDefault();
         focusTargets[focusTargets.length - 1].focus();
-      } else if (owner && active !== owner && event.code === 'Escape') {
+      } else if (owner && isInputElement(owner) && contains(owner, active) && event.code === 'Enter') {
+        // Move focus to first target when enter is pressed
+        event.preventDefault();
+        const newTarget = getFirstFocusTarget(ref.current);
+        if (newTarget) {
+          selection = snapshotSelection(owner);
+          newTarget.focus();
+        }
+      } else if (owner && !contains(owner, active) && event.code === 'Escape') {
         // Restore selection if escape is pressed
         event.preventDefault();
         restoreSelection(selection);
