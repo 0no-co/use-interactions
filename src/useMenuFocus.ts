@@ -36,7 +36,7 @@ export function useMenuFocus<T extends HTMLElement>(ref: Ref<T>, options?: MenuF
     }
 
     function onKey(event: KeyboardEvent) {
-      if (!ref.current || event.defaultPrevented) return;
+      if (!ref.current || event.defaultPrevented || event.isComposing) return;
 
       const owner = (ownerRef && ownerRef.current) || selection && selection.element;
       const active = document.activeElement as HTMLElement;

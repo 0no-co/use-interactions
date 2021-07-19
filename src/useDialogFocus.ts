@@ -63,7 +63,7 @@ export function useDialogFocus<T extends HTMLElement>(
     }
 
     function onKey(event: KeyboardEvent) {
-      if (!ref.current || event.defaultPrevented) return;
+      if (!ref.current || event.defaultPrevented || event.isComposing) return;
 
       // Mark whether focus is moving forward for the `onFocus` handler
       if (event.code === 'Tab') {
