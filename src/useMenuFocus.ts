@@ -1,4 +1,8 @@
-import { RestoreSelection, snapshotSelection, restoreSelection } from './utils/selection';
+import {
+  RestoreSelection,
+  snapshotSelection,
+  restoreSelection,
+} from './utils/selection';
 import { getFirstFocusTarget, getFocusTargets } from './utils/focus';
 import { useLayoutEffect } from './utils/react';
 import { contains, isInputElement } from './utils/element';
@@ -9,7 +13,10 @@ export interface MenuFocusOptions {
   ownerRef?: Ref<HTMLElement>;
 }
 
-export function useMenuFocus<T extends HTMLElement>(ref: Ref<T>, options?: MenuFocusOptions) {
+export function useMenuFocus<T extends HTMLElement>(
+  ref: Ref<T>,
+  options?: MenuFocusOptions
+) {
   const ownerRef = options && options.ownerRef;
   const disabled = !!(options && options.disabled);
 
@@ -21,15 +28,22 @@ export function useMenuFocus<T extends HTMLElement>(ref: Ref<T>, options?: MenuF
     function onFocus(event: FocusEvent) {
       if (!ref.current || event.defaultPrevented) return;
 
-      const owner = (ownerRef && ownerRef.current) || selection && selection.element;
+      const owner =
+        (ownerRef && ownerRef.current) || (selection && selection.element);
       const { relatedTarget, target } = event;
       if (relatedTarget === owner) {
         // When owner is explicitly passed we can make a snapshot early
         selection = snapshotSelection(owner);
-      } else if (contains(ref.current, target) && !contains(ref.current, relatedTarget)) {
+      } else if (
+        contains(ref.current, target) &&
+        !contains(ref.current, relatedTarget)
+      ) {
         // Check whether focus is about to move into the container and snapshot last focus
         selection = snapshotSelection(owner);
-      } else if (contains(ref.current, relatedTarget) && !contains(ref.current, target)) {
+      } else if (
+        contains(ref.current, relatedTarget) &&
+        !contains(ref.current, target)
+      ) {
         // Reset focus if it's lost and has left the menu
         selection = null;
       }
@@ -38,10 +52,15 @@ export function useMenuFocus<T extends HTMLElement>(ref: Ref<T>, options?: MenuF
     function onKey(event: KeyboardEvent) {
       if (!ref.current || event.defaultPrevented || event.isComposing) return;
 
-      const owner = (ownerRef && ownerRef.current) || selection && selection.element;
+      const owner =
+        (ownerRef && ownerRef.current) || (selection && selection.element);
       const active = document.activeElement as HTMLElement;
       const focusTargets = getFocusTargets(ref.current);
-      if (!focusTargets.length || !contains(ref.current, active) || !contains(owner, active)) {
+      if (
+        !focusTargets.length ||
+        !contains(ref.current, active) ||
+        !contains(owner, active)
+      ) {
         // Do nothing if container doesn't contain focus or not targets are available
         return;
       }
@@ -53,7 +72,8 @@ export function useMenuFocus<T extends HTMLElement>(ref: Ref<T>, options?: MenuF
         // Implement forward movement in focus targets
         event.preventDefault();
         const focusIndex = focusTargets.indexOf(active);
-        const nextIndex = focusIndex < focusTargets.length - 1 ? focusIndex + 1 : 0;
+        const nextIndex =
+          focusIndex < focusTargets.length - 1 ? focusIndex + 1 : 0;
         focusTargets[nextIndex].focus();
       } else if (
         (!isInputElement(active) && event.code === 'ArrowLeft') ||
@@ -62,7 +82,8 @@ export function useMenuFocus<T extends HTMLElement>(ref: Ref<T>, options?: MenuF
         // Implement backward movement in focus targets
         event.preventDefault();
         const focusIndex = focusTargets.indexOf(active);
-        const nextIndex = focusIndex > 0 ? focusIndex - 1 : focusTargets.length - 1;
+        const nextIndex =
+          focusIndex > 0 ? focusIndex - 1 : focusTargets.length - 1;
         focusTargets[nextIndex].focus();
       } else if (event.code === 'Home') {
         // Implement Home => first item
@@ -72,7 +93,12 @@ export function useMenuFocus<T extends HTMLElement>(ref: Ref<T>, options?: MenuF
         // Implement End => last item
         event.preventDefault();
         focusTargets[focusTargets.length - 1].focus();
-      } else if (owner && isInputElement(owner) && contains(owner, active) && event.code === 'Enter') {
+      } else if (
+        owner &&
+        isInputElement(owner) &&
+        contains(owner, active) &&
+        event.code === 'Enter'
+      ) {
         // Move focus to first target when enter is pressed
         event.preventDefault();
         const newTarget = getFirstFocusTarget(ref.current);

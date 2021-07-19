@@ -1,4 +1,8 @@
-import { RestoreSelection, snapshotSelection, restoreSelection } from './utils/selection';
+import {
+  RestoreSelection,
+  snapshotSelection,
+  restoreSelection,
+} from './utils/selection';
 import { getFirstFocusTarget, getFocusTargets } from './utils/focus';
 import { useLayoutEffect } from './utils/react';
 import { contains } from './utils/element';
@@ -11,7 +15,10 @@ export interface ModalFocusOptions {
   disabled?: boolean;
 }
 
-export function useModalFocus<T extends HTMLElement>(ref: Ref<T>, options?: ModalFocusOptions) {
+export function useModalFocus<T extends HTMLElement>(
+  ref: Ref<T>,
+  options?: ModalFocusOptions
+) {
   const disabled = !!(options && options.disabled);
   const hasPriority = usePriority(ref, disabled);
 
@@ -19,7 +26,10 @@ export function useModalFocus<T extends HTMLElement>(ref: Ref<T>, options?: Moda
     if (!ref.current || !hasPriority || disabled) return;
 
     let selection: RestoreSelection | null = null;
-    if (!document.activeElement || !ref.current.contains(document.activeElement)) {
+    if (
+      !document.activeElement ||
+      !ref.current.contains(document.activeElement)
+    ) {
       const newTarget = getFirstFocusTarget(ref.current);
       if (newTarget) {
         selection = snapshotSelection(ref.current);
@@ -31,7 +41,10 @@ export function useModalFocus<T extends HTMLElement>(ref: Ref<T>, options?: Moda
       const parent = ref.current;
       if (!parent || event.defaultPrevented) return;
 
-      if (contains(parent, event.target) && !contains(parent, event.relatedTarget)) {
+      if (
+        contains(parent, event.target) &&
+        !contains(parent, event.relatedTarget)
+      ) {
         const target = getFirstFocusTarget(parent);
         if (target) target.focus();
       }
@@ -52,7 +65,6 @@ export function useModalFocus<T extends HTMLElement>(ref: Ref<T>, options?: Moda
           event.preventDefault();
           targets[0].focus();
         }
-
       }
     }
 

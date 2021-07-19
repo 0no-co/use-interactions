@@ -13,12 +13,16 @@ export const makePriorityHook = () => {
       (x & 16 /* a contains b */ && -1) ||
       (x & 8 /* b contains a */ && 1) ||
       (x & 2 /* b follows a */ && -1) ||
-      (x & 4 /* a follows b */ && 1)
-    ) || 0;
+      (x & 4 /* a follows b */ && 1) ||
+      0
+    );
   };
 
   /** Indicates whether a given element on a stack of active priority hooks is the deepest element. */
-  return function usePriority<T extends HTMLElement>(ref: Ref<T>, disabled?: boolean): boolean {
+  return function usePriority<T extends HTMLElement>(
+    ref: Ref<T>,
+    disabled?: boolean
+  ): boolean {
     function computeHasPriority(): boolean {
       if (!ref.current) return false;
       const tempStack = priorityStack.concat(ref.current).sort(sortByHierarchy);
@@ -51,5 +55,5 @@ export const makePriorityHook = () => {
     }, [ref, isDisabled]);
 
     return hasPriority;
-  }
+  };
 };

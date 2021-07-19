@@ -1,5 +1,9 @@
 import { snapshotSelection, restoreSelection } from './utils/selection';
-import { getFirstFocusTarget, getFocusTargets, getNextFocusTarget } from './utils/focus';
+import {
+  getFirstFocusTarget,
+  getFocusTargets,
+  getNextFocusTarget,
+} from './utils/focus';
 import { useLayoutEffect } from './utils/react';
 import { contains, isInputElement } from './utils/element';
 import { makePriorityHook } from './usePriority';
@@ -41,17 +45,22 @@ export function useDialogFocus<T extends HTMLElement>(
       if (!ref.current || event.defaultPrevented) return;
 
       const active = document.activeElement as HTMLElement;
-      const owner = (ownerRef && ownerRef.current) || selection && selection.element;
+      const owner =
+        (ownerRef && ownerRef.current) || (selection && selection.element);
 
       if (willReceiveFocus || (owner && event.target === owner)) {
-        if (!contains(ref.current, active)) selection = snapshotSelection(owner);
+        if (!contains(ref.current, active))
+          selection = snapshotSelection(owner);
         willReceiveFocus = false;
         return;
       }
 
       const { relatedTarget, target } = event;
       // Check whether focus is about to move into the container and prevent it
-      if (contains(ref.current, target) && !contains(ref.current, relatedTarget)) {
+      if (
+        contains(ref.current, target) &&
+        !contains(ref.current, relatedTarget)
+      ) {
         // Get the next focus target of the container
         const focusTarget = getNextFocusTarget(ref.current, !focusMovesForward);
         if (focusTarget) {
@@ -71,7 +80,8 @@ export function useDialogFocus<T extends HTMLElement>(
       }
 
       const active = document.activeElement as HTMLElement;
-      const owner = (ownerRef && ownerRef.current) || selection && selection.element;
+      const owner =
+        (ownerRef && ownerRef.current) || (selection && selection.element);
       const focusTargets = getFocusTargets(ref.current);
 
       if (
@@ -95,7 +105,8 @@ export function useDialogFocus<T extends HTMLElement>(
         // Implement forward movement in focus targets
         event.preventDefault();
         const focusIndex = focusTargets.indexOf(active);
-        const nextIndex = focusIndex < focusTargets.length - 1 ? focusIndex + 1 : 0;
+        const nextIndex =
+          focusIndex < focusTargets.length - 1 ? focusIndex + 1 : 0;
         willReceiveFocus = true;
         focusTargets[nextIndex].focus();
       } else if (
@@ -105,7 +116,8 @@ export function useDialogFocus<T extends HTMLElement>(
         // Implement backward movement in focus targets
         event.preventDefault();
         const focusIndex = focusTargets.indexOf(active);
-        const nextIndex = focusIndex > 0 ? focusIndex - 1 : focusTargets.length - 1;
+        const nextIndex =
+          focusIndex > 0 ? focusIndex - 1 : focusTargets.length - 1;
         willReceiveFocus = true;
         focusTargets[nextIndex].focus();
       } else if (selection && event.code === 'Escape') {
@@ -113,7 +125,12 @@ export function useDialogFocus<T extends HTMLElement>(
         event.preventDefault();
         willReceiveFocus = false;
         restoreSelection(selection);
-      } else if (owner && isInputElement(owner) && contains(owner, active) && event.code === 'Enter') {
+      } else if (
+        owner &&
+        isInputElement(owner) &&
+        contains(owner, active) &&
+        event.code === 'Enter'
+      ) {
         // Move focus to first target when enter is pressed
         event.preventDefault();
         const newTarget = getFirstFocusTarget(ref.current);

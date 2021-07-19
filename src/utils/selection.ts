@@ -1,30 +1,34 @@
 interface RestoreInputSelection {
-  element: HTMLElement,
-  method: 'setSelectionRange',
-  arguments: [number, number, 'forward' | 'backward' | 'none' | undefined],
+  element: HTMLElement;
+  method: 'setSelectionRange';
+  arguments: [number, number, 'forward' | 'backward' | 'none' | undefined];
 }
 
 interface RestoreActiveNode {
-  element: HTMLElement,
-  method: 'focus',
+  element: HTMLElement;
+  method: 'focus';
 }
 
 interface RestoreSelectionRange {
-  element: HTMLElement,
-  method: 'range',
-  range: Range
+  element: HTMLElement;
+  method: 'range';
+  range: Range;
 }
 
-export type RestoreSelection = RestoreInputSelection | RestoreActiveNode | RestoreSelectionRange;
+export type RestoreSelection =
+  | RestoreInputSelection
+  | RestoreActiveNode
+  | RestoreSelectionRange;
 
-const isInputElement = (node: HTMLElement): node is HTMLInputElement => (
+const isInputElement = (node: HTMLElement): node is HTMLInputElement =>
   (node.nodeName === 'input' || node.nodeName === 'textarea') &&
   typeof (node as HTMLInputElement).selectionStart === 'number' &&
-  typeof (node as HTMLInputElement).selectionEnd === 'number'
-);
+  typeof (node as HTMLInputElement).selectionEnd === 'number';
 
 /** Snapshots the current focus or selection target, optinally using a ref if it's passed. */
-export const snapshotSelection = (node?: HTMLElement | null): RestoreSelection | null => {
+export const snapshotSelection = (
+  node?: HTMLElement | null
+): RestoreSelection | null => {
   const target = document.activeElement as HTMLElement | null;
   const element = node && target && node !== target ? node : target;
   if (!element || !target) {
@@ -33,7 +37,11 @@ export const snapshotSelection = (node?: HTMLElement | null): RestoreSelection |
     return {
       element,
       method: 'setSelectionRange',
-      arguments: [target.selectionStart!, target.selectionEnd!, target.selectionDirection || undefined],
+      arguments: [
+        target.selectionStart!,
+        target.selectionEnd!,
+        target.selectionDirection || undefined,
+      ],
     };
   }
 
