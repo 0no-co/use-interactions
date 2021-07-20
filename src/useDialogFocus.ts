@@ -146,10 +146,10 @@ export function useDialogFocus<T extends HTMLElement>(
         contains(owner, active) &&
         event.code === 'Enter'
       ) {
-        // Move focus to first target when enter is pressed
-        event.preventDefault();
+        // Move focus to first target when Enter is pressed
         const newTarget = getFirstFocusTarget(ref.current);
         if (newTarget) {
+          event.preventDefault();
           willReceiveFocus = true;
           newTarget.focus();
         }
@@ -160,7 +160,6 @@ export function useDialogFocus<T extends HTMLElement>(
         /^(?:Key|Digit)/.test(event.code)
       ) {
         // Restore selection if a key is pressed on input
-        event.preventDefault();
         willReceiveFocus = false;
         restoreSelection(selection);
       }

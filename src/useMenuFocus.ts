@@ -119,7 +119,6 @@ export function useMenuFocus<T extends HTMLElement>(
         /^(?:Key|Digit)/.test(event.code)
       ) {
         // Restore selection if a key is pressed on input
-        event.preventDefault();
         restoreSelection(selection);
       }
     }

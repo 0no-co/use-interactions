@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useRef } from 'react';
 import { mount } from '@cypress/react';
 
 import { useMenuFocus } from '../useMenuFocus';
@@ -84,4 +84,61 @@ it('prevents Left/Right arrow keys from overriding input actions', () => {
   cy.get('@input').should('not.be.focused');
   cy.realPress('ArrowUp');
   cy.get('@input').should('be.focused');
+});
+
+it('supports being attached to an owner element', () => {
+  const Menu = () => {
+    const ownerRef = useRef<HTMLInputElement>(null);
+    const ref = useRef<HTMLUListElement>(null);
+
+    useMenuFocus(ref, { ownerRef });
+
+    return (
+      <main>
+        <input type="search" name="search" ref={ownerRef} />
+        <ul ref={ref}>
+          <li tabIndex={0}>#1</li>
+          <li tabIndex={0}>#2</li>
+          <li tabIndex={0}>#3</li>
+        </ul>
+      </main>
+    );
+  };
+
+  mount(<Menu />);
+
+  // focus the input
+  cy.get('input').first().as('input').focus();
+  cy.focused().should('have.property.name', 'search');
+
+  // pressing escape on input shouldn't change focus
+  cy.realPress('Escape');
+  cy.get('@input').should('have.focus');
+
+  // pressing arrow down should start focusing the menu
+  cy.get('@input').focus();
+  cy.realPress('ArrowDown');
+  cy.focused().contains('#1');
+
+  // pressing arrow up should start focusing the last item
+  cy.get('@input').focus();
+  cy.realPress('ArrowUp');
+  cy.focused().contains('#3');
+
+  // pressing arrow up should start focusing the last item
+  cy.get('@input').focus();
+  cy.realPress('Enter');
+  cy.focused().contains('#1');
+
+  // typing regular values should refocus the owner input
+  cy.get('li').first().focus();
+  cy.realType('test');
+  cy.get('@input')
+    .should('have.focus')
+    .should('have.value', 'test');
+
+  // pressing escape should refocus input
+  cy.get('li').first().focus();
+  cy.realPress('Escape');
+  cy.get('@input').should('have.focus');
 });
