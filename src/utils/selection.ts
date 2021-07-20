@@ -1,7 +1,7 @@
 import { contains } from './element';
 
 interface RestoreInputSelection {
-  element: HTMLElement;
+  element: HTMLInputElement;
   method: 'setSelectionRange';
   arguments: [number, number, 'forward' | 'backward' | 'none' | undefined];
 }
@@ -22,7 +22,7 @@ export type RestoreSelection =
   | RestoreActiveNode
   | RestoreSelectionRange;
 
-const isInputElement = (node: HTMLElement): node is HTMLInputElement =>
+const hasSelection = (node: HTMLElement): node is HTMLInputElement =>
   (node.nodeName === 'INPUT' || node.nodeName === 'TEXTAREA') &&
   typeof (node as HTMLInputElement).selectionStart === 'number' &&
   typeof (node as HTMLInputElement).selectionEnd === 'number';
@@ -35,14 +35,14 @@ export const snapshotSelection = (
   const element = node && target && node !== target ? node : target;
   if (!element || !target) {
     return null;
-  } else if (isInputElement(target)) {
+  } else if (hasSelection(element)) {
     return {
       element,
       method: 'setSelectionRange',
       arguments: [
-        target.selectionStart!,
-        target.selectionEnd!,
-        target.selectionDirection || undefined,
+        element.selectionStart!,
+        element.selectionEnd!,
+        element.selectionDirection || undefined,
       ],
     };
   }
@@ -60,18 +60,17 @@ export const snapshotSelection = (
 
 /** Restores a given snapshot of a selection, falling back to a simple focus. */
 export const restoreSelection = (restore: RestoreSelection | null) => {
-  const target = restore && restore.element;
-  if (!restore || !target || !target.parentNode) {
+  if (!restore || !restore.element.parentNode) {
     return;
-  } else if (restore.method === 'setSelectionRange' && isInputElement(target)) {
-    target.focus();
-    target.setSelectionRange(...restore.arguments);
+  } else if (restore.method === 'setSelectionRange') {
+    restore.element.focus();
+    restore.element.setSelectionRange(...restore.arguments);
   } else if (restore.method === 'range') {
     const selection = window.getSelection()!;
-    target.focus();
+    restore.element.focus();
     selection.removeAllRanges();
     selection.addRange(restore.range);
   } else {
-    target.focus();
+    restore.element.focus();
   }
 };
