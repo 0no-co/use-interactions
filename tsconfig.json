@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "types": ["react", "cypress", "cypress-real-events"],
     "baseUrl": "./",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,

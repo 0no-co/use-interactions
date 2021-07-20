@@ -12,8 +12,8 @@ export const makePriorityHook = () => {
     return (
       (x & 16 /* a contains b */ && 1) ||
       (x & 8 /* b contains a */ && -1) ||
-      (x & 2 /* b follows a */ && 1) ||
-      (x & 4 /* a follows b */ && -1) ||
+      (x & 4 /* a follows b */ && 1) ||
+      (x & 2 /* b follows a */ && -1) ||
       0
     );
   };
@@ -38,13 +38,13 @@ export const makePriorityHook = () => {
       const { current } = ref;
 
       function onChange() {
-        setHasPriority(computeHasPriority);
+        setHasPriority(() => priorityStack[0] === ref.current);
       }
 
       priorityStack.push(current);
       priorityStack.sort(sortByHierarchy);
-      listeners.forEach(fn => fn());
       listeners.add(onChange);
+      listeners.forEach(fn => fn());
 
       return () => {
         const index = priorityStack.indexOf(current);
