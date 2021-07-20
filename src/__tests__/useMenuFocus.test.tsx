@@ -125,7 +125,7 @@ it('supports being attached to an owner element', () => {
   cy.realPress('ArrowUp');
   cy.focused().contains('#3');
 
-  // pressing arrow up should start focusing the last item
+  // pressing enter should start focusing the first item
   cy.get('@input').focus();
   cy.realPress('Enter');
   cy.focused().contains('#1');

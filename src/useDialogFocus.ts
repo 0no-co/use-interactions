@@ -50,7 +50,7 @@ export function useDialogFocus<T extends HTMLElement>(
 
       if (
         willReceiveFocus ||
-        (hasPriority && owner && event.target === owner)
+        (hasPriority && owner && contains(event.target, owner))
       ) {
         if (!contains(ref.current, active))
           selection = snapshotSelection(owner);
@@ -160,8 +160,8 @@ export function useDialogFocus<T extends HTMLElement>(
         }
       } else if (
         owner &&
-        contains(owner, active) &&
         isInputElement(owner) &&
+        !contains(owner, active) &&
         /^(?:Key|Digit)/.test(event.code)
       ) {
         // Restore selection if a key is pressed on input

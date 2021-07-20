@@ -76,7 +76,7 @@ export const getNextFocusTarget = (
     while (
       (next = reverse ? next.previousElementSibling : next.nextElementSibling)
     ) {
-      if (isVisible(next) && !!node.matches(focusableSelectors)) {
+      if (isVisible(next) && !!next.matches(focusableSelectors)) {
         return next as HTMLElement;
       } else if (hasFocusTargets(next)) {
         const targets = getFocusTargets(next);
