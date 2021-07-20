@@ -13,5 +13,4 @@
 // https://on.cypress.io/configuration
 // ***********************************************************
 
-import 'cypress-promise/register';
 import 'cypress-real-events/support';

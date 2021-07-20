@@ -1,100 +1,105 @@
 import React from 'react';
 import { mount } from '@cypress/react';
-import { snapshotSelection, restoreSelection } from '../selection';
+import { RestoreSelection, snapshotSelection, restoreSelection } from '../selection';
 
-it('should restore focused elements', async () => {
-  await mount(<button id="button">Focusable</button>).promisify();
+it('should restore focused elements', () => {
+  let selection: RestoreSelection | null = null;
 
-  let button: HTMLElement | null = null;
+  mount(<button id="button">Focusable</button>);
+  cy.get('button').as('button').focus();
 
-  await cy.get('button').as('button').then($el => {
-    button = $el.get(0);
-  }).focus().promisify();
+  // snapshot the selection
+  cy.get('@button').then($el => {
+    selection = snapshotSelection();
 
-  const selection = snapshotSelection();
-
-  // check selection matches expected state
-  expect(selection).to.deep.equal({
-    element: button,
-    method: 'focus',
+    // check selection matches expected state
+    expect(selection).to.deep.equal({
+      element: $el.get(0),
+      method: 'focus',
+    });
   });
 
   // unfocus the button
-  await cy.realPress('Tab');
-  await cy.focused().should('not.exist').promisify();
+  cy.realPress('Tab');
+  cy.focused().should('not.exist');
 
   // restore the snapshotted selection
-  restoreSelection(selection);
-  await cy.focused().should('exist').promisify();
-  await cy.get('@button').should('have.focus').promisify();
+  cy.get('@button').then(() => {
+    restoreSelection(selection);
+  });
+
+  cy.focused().should('exist');
+  cy.get('@button').should('have.focus');
 });
 
-it('should restore input selections', async () => {
-  await mount(<input type="text" name="text" />).promisify();
+it('should restore input selections', () => {
+  let selection: RestoreSelection | null = null;
 
-  let input: HTMLElement | null = null;
-
-  await cy.get('input').as('input').then($el => {
-    input = $el.get(0);
-  }).focus().promisify();
+  mount(<input type="text" name="text" />);
 
   // type and move selection
-  await cy.realType('test');
-  await cy.realPress('ArrowLeft');
-  await cy.realPress('ArrowLeft');
+  cy.get('input').as('input').focus();
+  cy.realType('test');
+  cy.realPress('ArrowLeft');
+  cy.realPress('ArrowLeft');
 
-  const selection = snapshotSelection();
+  // snapshot the selection
+  cy.get('@input').then($el => {
+    selection = snapshotSelection();
 
-  // check selection matches expected state
-  expect(selection).to.deep.equal({
-    element: input,
-    method: 'setSelectionRange',
-    arguments: [2, 2, 'none'],
+    // check selection matches expected state
+    expect(selection).to.deep.equal({
+      element: $el.get(0),
+      method: 'setSelectionRange',
+      arguments: [2, 2, 'none'],
+    });
   });
 
   // unfocus the input
-  await cy.realPress('Tab');
-  await cy.focused().should('not.exist').promisify();
+  cy.realPress('Tab');
+  cy.focused().should('not.exist');
 
   // restore the snapshotted selection
-  restoreSelection(selection);
-  await cy.focused().should('exist').promisify();
+  cy.get('@input').then(() => {
+    restoreSelection(selection);
+  });
 
   // modify input at selected caret and check value
-  await cy.realType('test');
-  await cy.get('@input').should('have.value', 'tetestst').promisify();
+  cy.focused().should('exist');
+  cy.realType('test');
+  cy.get('@input').should('have.value', 'tetestst');
 });
 
 it('should restore selections otherwise', async () => {
-  await mount(<div contentEditable="true" id="editable"></div>).promisify();
-
-  let div: HTMLElement | null = null;
-
-  await cy.get('#editable').as('editable').then($el => {
-    div = $el.get(0);
-  }).focus().promisify();
+  let selection: RestoreSelection | null = null;
 
   // type and move selection
-  await cy.realType('test');
-  await cy.realPress('ArrowLeft');
-  await cy.realPress('ArrowLeft');
+  cy.get('#editable').as('editable').focus();
+  cy.realType('test');
+  cy.realPress('ArrowLeft');
+  cy.realPress('ArrowLeft');
 
-  const selection = snapshotSelection();
+  // snapshot the selection
+  cy.get('@editable').then($el => {
+    selection = snapshotSelection();
 
-  // check selection matches expected state
-  expect(selection).to.have.property('element', div);
-  expect(selection).to.have.property('method', 'range');
-  expect(selection).to.have.property('range');
+    // check selection matches expected state
+    expect(selection).to.have.property('element', $el.get(0));
+    expect(selection).to.have.property('method', 'range');
+    expect(selection).to.have.property('range');
+  });
 
   // unfocus the input
-  await cy.realPress('Tab');
-  await cy.focused().should('not.exist').promisify();
+  cy.realPress('Tab');
+  cy.focused().should('not.exist');
 
   // restore the snapshotted selection
-  restoreSelection(selection);
-  await cy.focused().should('exist').promisify();
+  cy.get('@editable').then(() => {
+    restoreSelection(selection);
+  });
 
   // modify input at selected caret and check value
-  await cy.realType('test');
-  await cy.get('@editable').should('have.text', 'tetestst').promisify();
+  cy.focused().should('exist');
+  cy.realType('test');
+  cy.get('@editable').should('have.text', 'tetestst');
 });
