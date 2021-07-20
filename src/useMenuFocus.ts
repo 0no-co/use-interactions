@@ -100,7 +100,6 @@ export function useMenuFocus<T extends HTMLElement>(
         event.code === 'Enter'
       ) {
         // Move focus to first target when enter is pressed
-        event.preventDefault();
         const newTarget = getFirstFocusTarget(ref.current);
         if (newTarget) newTarget.focus();
       } else if (

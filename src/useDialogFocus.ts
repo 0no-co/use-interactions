@@ -154,7 +154,6 @@ export function useDialogFocus<T extends HTMLElement>(
         // Move focus to first target when Enter is pressed
         const newTarget = getFirstFocusTarget(ref.current);
         if (newTarget) {
-          event.preventDefault();
           willReceiveFocus = true;
           newTarget.focus();
         }
