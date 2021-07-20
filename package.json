@@ -58,6 +58,7 @@
     "@rollup/plugin-node-resolve": "^13.0.2",
     "@types/react": "^17.0.14",
     "cypress": "^8.0.0",
+    "cypress-promise": "^1.1.0",
     "cypress-real-events": "^1.5.0",
     "husky-v4": "^4.3.8",
     "lint-staged": "^11.0.1",

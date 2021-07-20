@@ -52,7 +52,10 @@ export const getFocusTargets = (node: Element): HTMLElement[] => {
   }
 
   return tabIndexTargets.length
-    ? targets.concat(tabIndexTargets.sort(sortByTabindex).map(x => x[2]))
+    ? tabIndexTargets
+        .sort(sortByTabindex)
+        .map(x => x[2])
+        .concat(targets)
     : targets;
 };
 

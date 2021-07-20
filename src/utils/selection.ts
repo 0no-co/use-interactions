@@ -1,3 +1,5 @@
+import { contains } from './element';
+
 interface RestoreInputSelection {
   element: HTMLElement;
   method: 'setSelectionRange';
@@ -21,7 +23,7 @@ export type RestoreSelection =
   | RestoreSelectionRange;
 
 const isInputElement = (node: HTMLElement): node is HTMLInputElement =>
-  (node.nodeName === 'input' || node.nodeName === 'textarea') &&
+  (node.nodeName === 'INPUT' || node.nodeName === 'TEXTAREA') &&
   typeof (node as HTMLInputElement).selectionStart === 'number' &&
   typeof (node as HTMLInputElement).selectionEnd === 'number';
 
@@ -48,7 +50,9 @@ export const snapshotSelection = (
   const selection = window.getSelection && window.getSelection();
   if (selection && selection.rangeCount) {
     const range = selection.getRangeAt(0);
-    return { element, method: 'range', range };
+    if (contains(target, range.startContainer)) {
+      return { element, method: 'range', range };
+    }
   }
 
   return { element, method: 'focus' };
@@ -60,9 +64,11 @@ export const restoreSelection = (restore: RestoreSelection | null) => {
   if (!restore || !target || !target.parentNode) {
     return;
   } else if (restore.method === 'setSelectionRange' && isInputElement(target)) {
+    target.focus();
     target.setSelectionRange(...restore.arguments);
   } else if (restore.method === 'range') {
     const selection = window.getSelection()!;
+    target.focus();
     selection.removeAllRanges();
     selection.addRange(restore.range);
   } else {
