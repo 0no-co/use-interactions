@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 import { useLayoutEffect } from './utils/react';
 import { contains } from './utils/element';
 import { makePriorityHook } from './usePriority';
@@ -7,6 +8,7 @@ const usePriority = makePriorityHook();
 
 export interface DismissableOptions {
   focusLoss?: boolean;
+  disabled?: boolean;
 }
 
 export function useDismissable<T extends HTMLElement>(
@@ -15,10 +17,16 @@ export function useDismissable<T extends HTMLElement>(
   options?: DismissableOptions
 ) {
   const focusLoss = !!(options && options.focusLoss);
-  const hasPriority = usePriority(ref);
+  const disabled = !!(options && options.disabled);
+  const hasPriority = usePriority(ref, disabled);
+  const onDismissRef = useRef(onDismiss);
 
   useLayoutEffect(() => {
-    if (!ref.current || !hasPriority) return;
+    onDismissRef.current = onDismiss;
+  }, [onDismiss]);
+
+  useLayoutEffect(() => {
+    if (!ref.current || disabled) return;
 
     function onFocusOut(event: FocusEvent) {
       if (event.defaultPrevented) return;
@@ -28,7 +36,7 @@ export function useDismissable<T extends HTMLElement>(
         contains(ref.current, target) &&
         !contains(ref.current, relatedTarget)
       ) {
-        onDismiss();
+        onDismissRef.current();
       }
     }
 
@@ -39,7 +47,7 @@ export function useDismissable<T extends HTMLElement>(
         const active = document.activeElement;
         if (hasPriority || (active && contains(ref.current, active))) {
           event.preventDefault();
-          onDismiss();
+          onDismissRef.current();
         }
       }
     }
@@ -55,7 +63,7 @@ export function useDismissable<T extends HTMLElement>(
       const active = document.activeElement;
       if (hasPriority || (active && contains(ref.current, active))) {
         event.preventDefault();
-        onDismiss();
+        onDismissRef.current();
       }
     }
 
@@ -72,5 +80,5 @@ export function useDismissable<T extends HTMLElement>(
       document.removeEventListener('touchstart', onClick);
       document.removeEventListener('keydown', onKey);
     };
-  }, [ref, hasPriority, focusLoss, onDismiss]);
+  }, [ref, hasPriority, disabled, focusLoss]);
 }
