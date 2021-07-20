@@ -12,37 +12,45 @@ export function useDialogDismiss<T extends HTMLElement>(
   const hasPriority = usePriority(ref);
 
   useLayoutEffect(() => {
-    if (!hasPriority) return;
+    if (!ref.current || !hasPriority) return;
 
     function onKey(event: KeyboardEvent) {
-      if (
-        event.isComposing ||
-        event.defaultPrevented ||
-        event.code !== 'Escape'
-      )
-        return;
-      event.preventDefault();
-      onDismiss();
+      if (event.defaultPrevented || event.isComposing) return;
+
+      if (event.code === 'Escape') {
+        // The current dialog can be dismissed by pressing escape if it either has focus
+        // or it has priority
+        const active = document.activeElement;
+        if (hasPriority || (active && contains(ref.current, active))) {
+          event.preventDefault();
+          onDismiss();
+        }
+      }
     }
 
     function onClick(event: MouseEvent | TouchEvent) {
-      if (
-        !ref.current ||
-        contains(ref.current, event.target) ||
-        event.defaultPrevented
-      )
+      const { target } = event;
+      if (contains(ref.current, target) || event.defaultPrevented) {
         return;
+      }
+
       event.preventDefault();
       onDismiss();
     }
 
-    document.addEventListener('mousedown', onClick);
-    document.addEventListener('touchstart', onClick);
+    if (hasPriority) {
+      document.addEventListener('mousedown', onClick);
+      document.addEventListener('touchstart', onClick);
+    }
+
     document.addEventListener('keydown', onKey);
 
     return () => {
-      document.removeEventListener('mousedown', onClick);
-      document.removeEventListener('touchstart', onClick);
+      if (hasPriority) {
+        document.removeEventListener('mousedown', onClick);
+        document.removeEventListener('touchstart', onClick);
+      }
+
       document.removeEventListener('keydown', onKey);
     };
   }, [ref, hasPriority, onDismiss]);
