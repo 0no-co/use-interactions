@@ -36,7 +36,8 @@ export function useMenuFocus<T extends HTMLElement>(
         selection = snapshotSelection(owner);
       } else if (
         contains(ref.current, target) &&
-        !contains(ref.current, relatedTarget)
+        !contains(ref.current, relatedTarget) &&
+        (!ownerRef || contains(relatedTarget, ownerRef.current))
       ) {
         // Check whether focus is about to move into the container and snapshot last focus
         selection = snapshotSelection(owner);
@@ -101,10 +102,7 @@ export function useMenuFocus<T extends HTMLElement>(
         // Move focus to first target when enter is pressed
         event.preventDefault();
         const newTarget = getFirstFocusTarget(ref.current);
-        if (newTarget) {
-          selection = snapshotSelection(owner);
-          newTarget.focus();
-        }
+        if (newTarget) newTarget.focus();
       } else if (
         owner &&
         !contains(ref.current, owner) &&

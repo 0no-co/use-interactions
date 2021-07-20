@@ -120,6 +120,16 @@ export function useDialogFocus<T extends HTMLElement>(
           focusIndex > 0 ? focusIndex - 1 : focusTargets.length - 1;
         willReceiveFocus = true;
         focusTargets[nextIndex].focus();
+      } else if (event.code === 'Home') {
+        // Implement Home => first item
+        event.preventDefault();
+        willReceiveFocus = true;
+        focusTargets[0].focus();
+      } else if (event.code === 'End') {
+        // Implement End => last item
+        event.preventDefault();
+        willReceiveFocus = true;
+        focusTargets[focusTargets.length - 1].focus();
       } else if (
         owner &&
         !contains(ref.current, owner) &&
@@ -140,7 +150,7 @@ export function useDialogFocus<T extends HTMLElement>(
         event.preventDefault();
         const newTarget = getFirstFocusTarget(ref.current);
         if (newTarget) {
-          selection = snapshotSelection(owner);
+          willReceiveFocus = true;
           newTarget.focus();
         }
       } else if (

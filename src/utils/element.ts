@@ -24,6 +24,11 @@ export const isInputElement = (node: Element): boolean =>
   );
 
 export const contains = (
-  owner: Element | null,
+  owner: Element | EventTarget | null,
   node: Element | EventTarget | null
-) => !!(node && owner && (owner === node || owner.contains(node as Element)));
+) =>
+  !!(
+    node &&
+    owner &&
+    (owner === node || (owner as Element).contains(node as Element))
+  );
