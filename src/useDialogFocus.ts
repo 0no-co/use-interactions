@@ -23,9 +23,10 @@ export function useDialogFocus<T extends HTMLElement>(
   const ownerRef = options && options.ownerRef;
   const disabled = !!(options && options.disabled);
   const hasPriority = usePriority(ref, disabled);
+  const isActive = !disabled && !!hasPriority;
 
   useLayoutEffect(() => {
-    if (!ref.current || disabled || !hasPriority) return;
+    if (!ref.current || !isActive) return;
 
     let selection = snapshotSelection(ownerRef && ownerRef.current);
     let willReceiveFocus = false;
@@ -174,5 +175,5 @@ export function useDialogFocus<T extends HTMLElement>(
       document.body.removeEventListener('focusin', onFocus);
       document.removeEventListener('keydown', onKey);
     };
-  }, [ref, hasPriority, disabled]);
+  }, [ref, isActive]);
 }
