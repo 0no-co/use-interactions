@@ -58,8 +58,7 @@ export function useMenuFocus<T extends HTMLElement>(
       const focusTargets = getFocusTargets(ref.current);
       if (
         !focusTargets.length ||
-        !contains(ref.current, active) ||
-        !contains(owner, active)
+        (!contains(ref.current, active) && !contains(owner, active))
       ) {
         // Do nothing if container doesn't contain focus or not targets are available
         return;
@@ -106,14 +105,19 @@ export function useMenuFocus<T extends HTMLElement>(
           selection = snapshotSelection(owner);
           newTarget.focus();
         }
-      } else if (owner && !contains(owner, active) && event.code === 'Escape') {
+      } else if (
+        owner &&
+        !contains(ref.current, owner) &&
+        !contains(owner, active) &&
+        event.code === 'Escape'
+      ) {
         // Restore selection if escape is pressed
         event.preventDefault();
         restoreSelection(selection);
       } else if (
         owner &&
-        active !== owner &&
         isInputElement(owner) &&
+        !contains(owner, active) &&
         /^(?:Key|Digit)/.test(event.code)
       ) {
         // Restore selection if a key is pressed on input

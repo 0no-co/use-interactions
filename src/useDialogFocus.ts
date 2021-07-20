@@ -120,7 +120,11 @@ export function useDialogFocus<T extends HTMLElement>(
           focusIndex > 0 ? focusIndex - 1 : focusTargets.length - 1;
         willReceiveFocus = true;
         focusTargets[nextIndex].focus();
-      } else if (selection && event.code === 'Escape') {
+      } else if (
+        owner &&
+        !contains(ref.current, owner) &&
+        event.code === 'Escape'
+      ) {
         // Restore selection if escape is pressed
         event.preventDefault();
         willReceiveFocus = false;
@@ -128,6 +132,7 @@ export function useDialogFocus<T extends HTMLElement>(
       } else if (
         owner &&
         isInputElement(owner) &&
+        !contains(ref.current, owner) &&
         contains(owner, active) &&
         event.code === 'Enter'
       ) {
