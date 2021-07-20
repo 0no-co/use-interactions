@@ -23,10 +23,9 @@ export function useDialogFocus<T extends HTMLElement>(
   const ownerRef = options && options.ownerRef;
   const disabled = !!(options && options.disabled);
   const hasPriority = usePriority(ref, disabled);
-  const isActive = !disabled && !!hasPriority;
 
   useLayoutEffect(() => {
-    if (!ref.current || !isActive) return;
+    if (!ref.current || disabled) return;
 
     let selection = snapshotSelection(ownerRef && ownerRef.current);
     let willReceiveFocus = false;
@@ -49,7 +48,10 @@ export function useDialogFocus<T extends HTMLElement>(
       const owner =
         (ownerRef && ownerRef.current) || (selection && selection.element);
 
-      if (willReceiveFocus || (owner && event.target === owner)) {
+      if (
+        willReceiveFocus ||
+        (hasPriority && owner && event.target === owner)
+      ) {
         if (!contains(ref.current, active))
           selection = snapshotSelection(owner);
         willReceiveFocus = false;
@@ -78,6 +80,8 @@ export function useDialogFocus<T extends HTMLElement>(
       // Mark whether focus is moving forward for the `onFocus` handler
       if (event.code === 'Tab') {
         focusMovesForward = !event.shiftKey;
+      } else if (!hasPriority) {
+        return;
       }
 
       const active = document.activeElement as HTMLElement;
@@ -175,5 +179,5 @@ export function useDialogFocus<T extends HTMLElement>(
       document.body.removeEventListener('focusin', onFocus);
       document.removeEventListener('keydown', onKey);
     };
-  }, [ref, isActive]);
+  }, [ref, disabled, hasPriority]);
 }
