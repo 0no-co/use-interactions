@@ -25,9 +25,9 @@ it('is dismissed by clicking outside', () => {
     </main>
   );
 
-  cy.get('.inside').as('inside').click();
+  cy.get('.inside').as('inside').realClick();
   cy.get('@inside').should('be.visible');
-  cy.get('.outside').first().click();
+  cy.get('.outside').first().realClick();
   cy.get('@inside').should('not.be.visible');
 });
 
@@ -42,10 +42,24 @@ it('is not dismissed by clicking outside when it does not have priority', () => 
 
   cy.get('.inside').as('inside').should('be.visible');
   // at first not dismissed
-  cy.get('.outside').first().click();
+  cy.get('.outside').first().realClick();
   cy.get('@inside').should('be.visible');
   // dismissed when the second Dialog loses focus
-  cy.get('.outside').first().click();
+  cy.get('.outside').first().realClick();
+  cy.get('@inside').should('not.be.visible');
+});
+
+it('is dismissed by tapping outside', () => {
+  mount(
+    <main>
+      <button className="outside">outside</button>
+      <Dialog />
+    </main>
+  );
+
+  cy.get('.inside').as('inside').realClick();
+  cy.get('@inside').should('be.visible');
+  cy.get('.outside').first().realTouch();
   cy.get('@inside').should('not.be.visible');
 });
 
