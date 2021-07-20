@@ -32,23 +32,22 @@ export function useDialogDismiss<T extends HTMLElement>(
         return;
       }
 
-      event.preventDefault();
-      onDismiss();
+      // The current dialog can be dismissed by pressing outside of it if it either has
+      // focus or it has priority
+      const active = document.activeElement;
+      if (hasPriority || (active && contains(ref.current, active))) {
+        event.preventDefault();
+        onDismiss();
+      }
     }
 
-    if (hasPriority) {
-      document.addEventListener('mousedown', onClick);
-      document.addEventListener('touchstart', onClick);
-    }
-
+    document.addEventListener('mousedown', onClick);
+    document.addEventListener('touchstart', onClick);
     document.addEventListener('keydown', onKey);
 
     return () => {
-      if (hasPriority) {
-        document.removeEventListener('mousedown', onClick);
-        document.removeEventListener('touchstart', onClick);
-      }
-
+      document.removeEventListener('mousedown', onClick);
+      document.removeEventListener('touchstart', onClick);
       document.removeEventListener('keydown', onKey);
     };
   }, [ref, hasPriority, onDismiss]);
