@@ -142,3 +142,62 @@ it('supports being attached to an owner element', () => {
   cy.realPress('Escape');
   cy.get('@input').should('have.focus');
 });
+
+it('behaves nicely for nested menus', () => {
+  const InnerMenu = () => {
+    const ref = useRef<HTMLUListElement>(null);
+    useMenuFocus(ref);
+
+    return (
+      <ul ref={ref}>
+        <li tabIndex={0}>Inner #1</li>
+        <li tabIndex={0}>Inner #2</li>
+      </ul>
+    );
+  };
+
+  const OuterMenu = () => {
+    const ref = useRef<HTMLUListElement>(null);
+    useMenuFocus(ref);
+
+    return (
+      <ul ref={ref}>
+        <li tabIndex={0}>Outer #1</li>
+        <InnerMenu />
+      </ul>
+    );
+  };
+
+  mount(
+    <main>
+      <button tabIndex={-1}>Start</button>
+      <OuterMenu />
+    </main>
+  );
+
+  // Moves into the inner menu as needed
+  cy.get('button').first().focus();
+  cy.focused().contains('Start');
+  cy.realPress('Tab');
+  cy.focused().contains('Outer #1');
+  cy.realPress('Tab');
+  cy.focused().contains('Inner #1');
+  cy.realPress('Tab');
+  cy.focused().contains('Inner #2');
+  cy.realPress('ArrowDown');
+  cy.focused().contains('Inner #1');
+  cy.realPress('Escape');
+  cy.focused().contains('Start');
+
+  // Can move from outer to inner seamlessly
+  cy.get('button').first().focus();
+  cy.focused().contains('Start');
+  cy.realPress('Tab');
+  cy.focused().contains('Outer #1');
+  cy.realPress('ArrowDown');
+  cy.focused().contains('Inner #1');
+  cy.realPress('ArrowDown');
+  cy.focused().contains('Inner #2');
+  cy.realPress('ArrowDown');
+  cy.focused().contains('Inner #1');
+});
