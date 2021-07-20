@@ -5,14 +5,32 @@ import { Ref } from './types';
 
 const usePriority = makePriorityHook();
 
-export function useDialogDismiss<T extends HTMLElement>(
+export interface DismissableOptions {
+  focusLoss?: boolean;
+}
+
+export function useDismissable<T extends HTMLElement>(
   ref: Ref<T>,
-  onDismiss: () => void
+  onDismiss: () => void,
+  options?: DismissableOptions
 ) {
+  const focusLoss = !!(options && options.focusLoss);
   const hasPriority = usePriority(ref);
 
   useLayoutEffect(() => {
     if (!ref.current || !hasPriority) return;
+
+    function onFocusOut(event: FocusEvent) {
+      if (event.defaultPrevented) return;
+
+      const { target, relatedTarget } = event;
+      if (
+        contains(ref.current, target) &&
+        !contains(ref.current, relatedTarget)
+      ) {
+        onDismiss();
+      }
+    }
 
     function onKey(event: KeyboardEvent) {
       if (!event.isComposing && event.code === 'Escape') {
@@ -41,14 +59,18 @@ export function useDialogDismiss<T extends HTMLElement>(
       }
     }
 
+    if (focusLoss) document.body.addEventListener('focusout', onFocusOut);
+
     document.addEventListener('mousedown', onClick);
     document.addEventListener('touchstart', onClick);
     document.addEventListener('keydown', onKey);
 
     return () => {
+      if (focusLoss) document.body.removeEventListener('focusout', onFocusOut);
+
       document.removeEventListener('mousedown', onClick);
       document.removeEventListener('touchstart', onClick);
       document.removeEventListener('keydown', onKey);
     };
-  }, [ref, hasPriority, onDismiss]);
+  }, [ref, hasPriority, focusLoss, onDismiss]);
 }
