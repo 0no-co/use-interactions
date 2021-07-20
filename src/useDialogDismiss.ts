@@ -15,9 +15,7 @@ export function useDialogDismiss<T extends HTMLElement>(
     if (!ref.current || !hasPriority) return;
 
     function onKey(event: KeyboardEvent) {
-      if (event.defaultPrevented || event.isComposing) return;
-
-      if (event.code === 'Escape') {
+      if (!event.isComposing && event.code === 'Escape') {
         // The current dialog can be dismissed by pressing escape if it either has focus
         // or it has priority
         const active = document.activeElement;
