@@ -1,5 +1,5 @@
 import { useLayoutEffect } from './utils/react';
-import { observeScrollHeight } from './utils/observeScrollHeight';
+import { observeScrollArea } from './utils/observeScrollArea';
 import { Ref } from './types';
 
 const getIdForState = (() => {
@@ -16,7 +16,7 @@ const getIdForState = (() => {
   };
 })();
 
-const scrollPositions: Record<string, number> = {};
+const scrollPositions: Record<string, [number, number]> = {};
 
 export function useScrollRestoration<T extends HTMLElement>(
   ref: 'window' | Ref<T>
@@ -33,27 +33,32 @@ export function useScrollRestoration<T extends HTMLElement>(
       const id = `${addonId}${getIdForState(
         event ? event.state : history.state
       )}:${window.location}`;
-      const scrollHeight =
-        ref === 'window'
-          ? document.body.scrollHeight
-          : ref.current!.scrollHeight;
-      const scrollY = scrollPositions[id];
-      if (!scrollY) {
+      const { scrollWidth, scrollHeight } = scrollTarget;
+      const scrollTo = scrollPositions[id];
+      if (!scrollTo) {
         // noop
-      } else if (scrollHeight >= scrollY) {
-        scrollTarget.scrollTo(0, scrollY);
+      } else if (scrollWidth >= scrollTo[0] && scrollHeight >= scrollTo[1]) {
+        scrollTarget.scrollTo(scrollTo[0], scrollTo[1]);
       } else {
         if (unsubscribe) unsubscribe();
-        unsubscribe = observeScrollHeight(
+        unsubscribe = observeScrollArea(
           ref === 'window' ? document.body : ref.current!,
-          (scrollHeight: number) => {
-            // the scroll position shouldn't have changed by more than half the screen height
+          (scrollWidth: number, scrollHeight: number) => {
+            // check whether the scroll position has already moved too far
+            const halfViewportX = window.innerWidth / 2;
+            const halfViewportY = window.innerHeight / 2;
+            const newScrollTo = scrollPositions[id];
             const hasMoved =
-              Math.abs(scrollY - scrollPositions[id]) > window.innerHeight / 2;
+              Math.abs(scrollTo[0] - newScrollTo[0]) > halfViewportX ||
+              Math.abs(scrollTo[1] - newScrollTo[1]) > halfViewportY;
             // then we restore the position as it's now possible
-            if (!hasMoved && scrollHeight >= scrollY)
-              scrollTarget.scrollTo(0, scrollY);
-            if (unsubscribe) unsubscribe();
+            if (
+              hasMoved ||
+              (scrollWidth >= scrollTo[0] && scrollHeight >= scrollTo[1])
+            ) {
+              if (!hasMoved) scrollTarget.scrollTo(scrollTo[0], scrollTo[1]);
+              if (unsubscribe) unsubscribe();
+            }
           }
         );
       }
@@ -63,7 +68,9 @@ export function useScrollRestoration<T extends HTMLElement>(
       const id = `${addonId}${getIdForState(history.state)}:${window.location}`;
       const scrollY =
         ref === 'window' ? window.scrollY : ref.current!.scrollTop;
-      scrollPositions[id] = scrollY || 0;
+      const scrollX =
+        ref === 'window' ? window.scrollX : ref.current!.scrollLeft;
+      scrollPositions[id] = [scrollX, scrollY];
       if (unsubscribe) {
         unsubscribe();
         unsubscribe = undefined;

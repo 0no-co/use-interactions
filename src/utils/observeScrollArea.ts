@@ -13,9 +13,9 @@ const resizeObserver = new ResizeObserver(entries => {
   }
 });
 
-export function observeScrollHeight(
+export function observeScrollArea(
   element: HTMLElement,
-  onScrollHeightChange: (scrollHeight: number) => void
+  onAreaChange: (width: number, height: number) => void
 ): () => void {
   const listeners = resizeListeners.get(element) || [];
   const isFirstListener = !listeners.length;
@@ -26,7 +26,7 @@ export function observeScrollHeight(
   const onResize = () => {
     const scrollHeight = element.scrollHeight || 0;
     if (!hasUnmounted && scrollHeight !== previousScrollHeight) {
-      onScrollHeightChange(element.scrollHeight);
+      onAreaChange(element.scrollWidth, element.scrollHeight);
       previousScrollHeight = scrollHeight;
     }
   };
