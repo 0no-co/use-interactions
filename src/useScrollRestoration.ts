@@ -30,9 +30,7 @@ export function useScrollRestoration<T extends HTMLElement>(
     const scrollTarget = ref === 'window' ? document.body : ref.current!;
 
     function restoreScroll(event?: PopStateEvent) {
-      const id = `${addonId}${getIdForState(
-        event ? event.state : history.state
-      )}:${window.location}`;
+      const id = addonId + getIdForState(event ? event.state : history.state);
       const { scrollWidth, scrollHeight } = scrollTarget;
       const scrollTo = scrollPositions[id];
       if (!scrollTo) {
@@ -65,7 +63,7 @@ export function useScrollRestoration<T extends HTMLElement>(
     }
 
     function onScroll() {
-      const id = `${addonId}${getIdForState(history.state)}:${window.location}`;
+      const id = addonId + getIdForState(history.state);
       const scrollY =
         ref === 'window' ? window.scrollY : ref.current!.scrollTop;
       const scrollX =
