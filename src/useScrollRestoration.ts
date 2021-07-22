@@ -2,19 +2,8 @@ import { useLayoutEffect } from './utils/react';
 import { observeScrollArea } from './utils/observeScrollArea';
 import { Ref } from './types';
 
-const getIdForState = (() => {
-  const defaultState = {};
-  const stateToId = new WeakMap<{}, string>();
-
-  let uniqueID = 1;
-
-  return (state?: {} | null): string => {
-    if (!state) state = defaultState;
-    let id = stateToId.get(state);
-    if (!id) stateToId.set(state, (id = (uniqueID++).toString(36)));
-    return `${id}${document.location}`;
-  };
-})();
+const getIdForState = (state?: {} | null): string =>
+  `${state ? JSON.stringify(state) : ''}${document.location}`;
 
 const scrollPositions: Record<string, [number, number]> = {};
 
