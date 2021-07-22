@@ -1,7 +1,7 @@
 {
   "name": "use-interactions",
   "description": "Reusable and common web interactions with WCAG accessibility criteria for React",
-  "version": "1.0.0",
+  "version": "0.0.0",
   "main": "dist/use-interactions.js",
   "module": "dist/use-interactions.es.js",
   "types": "dist/types/index.d.ts",
