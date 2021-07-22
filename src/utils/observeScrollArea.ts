@@ -1,3 +1,4 @@
+const resizeOptions: ResizeObserverOptions = { box: 'border-box' };
 const mutationObservers: Map<HTMLElement, MutationObserver> = new Map();
 const resizeListeners: Map<HTMLElement, Array<() => void>> = new Map();
 
@@ -40,7 +41,7 @@ export function observeScrollArea(
         for (let j = 0; j < entry.addedNodes.length; j++) {
           const node = entry.addedNodes[j];
           if (node.nodeType === Node.ELEMENT_NODE) {
-            resizeObserver.observe(node as Element);
+            resizeObserver.observe(node as Element, resizeOptions);
           }
         }
 
@@ -53,16 +54,16 @@ export function observeScrollArea(
       }
     });
 
-    const childNodes = element.childNodes;
-    for (let i = 0; i < childNodes.length; i++)
-      if (childNodes[i].nodeType === Node.ELEMENT_NODE)
-        resizeObserver.observe(childNodes[i] as Element);
+    requestAnimationFrame(() => {
+      const childNodes = element.childNodes;
+      for (let i = 0; i < childNodes.length; i++)
+        if (childNodes[i].nodeType === Node.ELEMENT_NODE)
+          resizeObserver.observe(childNodes[i] as Element, resizeOptions);
+      mutationObserver.observe(element, { childList: true });
+    });
 
-    mutationObserver.observe(element, { childList: true });
     mutationObservers.set(element, mutationObserver);
   }
-
-  requestAnimationFrame(onResize);
 
   return () => {
     const listeners = resizeListeners.get(element) || [];
