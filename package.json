@@ -22,9 +22,10 @@
     "react",
     "hook"
   ],
-  "repository": "https://github.com/FormidableLabs/use-interactions",
+  "author": "Phil Pluckthun <phil@kitten.sh>",
+  "repository": "https://github.com/kitten/use-interactions",
   "bugs": {
-    "url": "https://github.com/FormidableLabs/use-interactions/issues"
+    "url": "https://github.com/kitten/use-interactions/issues"
   },
   "scripts": {
     "check": "tsc",
