@@ -76,5 +76,5 @@ export function useModalFocus<T extends HTMLElement>(
       document.body.removeEventListener('focusout', onBlur);
       document.removeEventListener('keydown', onKeyDown);
     };
-  }, [ref, hasPriority, disabled]);
+  }, [ref.current!, hasPriority, disabled]);
 }

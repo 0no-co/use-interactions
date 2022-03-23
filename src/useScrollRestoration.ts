@@ -10,13 +10,15 @@ const scrollPositions: Record<string, [number, number]> = {};
 export function useScrollRestoration<T extends HTMLElement>(
   ref: 'window' | Ref<T>
 ) {
+  const target = ref !== 'window' ? ref.current : ref;
+
   useLayoutEffect(() => {
     let unsubscribe: void | (() => void);
-    if (ref !== 'window' && !ref.current) return;
+    if (!target) return;
 
-    const addonId = ref === 'window' ? 'window' : ref.current!.id || '';
-    const eventTarget = ref === 'window' ? window : ref.current!;
-    const scrollTarget = ref === 'window' ? document.body : ref.current!;
+    const addonId = target === 'window' ? 'window' : target.id || '';
+    const eventTarget = target === 'window' ? window : target;
+    const scrollTarget = target === 'window' ? document.body : target;
 
     function restoreScroll(event?: PopStateEvent) {
       const id = addonId + getIdForState(event ? event.state : history.state);
@@ -75,5 +77,5 @@ export function useScrollRestoration<T extends HTMLElement>(
       window.removeEventListener('popstate', restoreScroll);
       if (unsubscribe) unsubscribe();
     };
-  }, [ref]);
+  }, [target]);
 }

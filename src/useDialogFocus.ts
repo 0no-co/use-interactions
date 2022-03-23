@@ -178,5 +178,5 @@ export function useDialogFocus<T extends HTMLElement>(
       document.body.removeEventListener('focusin', onFocus);
       document.removeEventListener('keydown', onKey);
     };
-  }, [ref, disabled, hasPriority]);
+  }, [ref.current!, disabled, hasPriority]);
 }

@@ -52,7 +52,7 @@ export const makePriorityHook = () => {
         listeners.delete(onChange);
         listeners.forEach(fn => fn());
       };
-    }, [ref, isDisabled]);
+    }, [ref.current!, isDisabled]);
 
     return hasPriority;
   };

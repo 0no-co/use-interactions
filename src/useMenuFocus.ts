@@ -129,5 +129,5 @@ export function useMenuFocus<T extends HTMLElement>(
       document.body.removeEventListener('focusin', onFocus);
       document.removeEventListener('keydown', onKey);
     };
-  }, [ref, disabled]);
+  }, [ref.current!, disabled]);
 }
