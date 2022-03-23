@@ -80,5 +80,5 @@ export function useDismissable<T extends HTMLElement>(
       document.removeEventListener('touchstart', onClick);
       document.removeEventListener('keydown', onKey);
     };
-  }, [ref, hasPriority, disabled, focusLoss]);
+  }, [ref.current, hasPriority, disabled, focusLoss]);
 }
