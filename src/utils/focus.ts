@@ -62,7 +62,7 @@ export const getFocusTargets = (node: Element): HTMLElement[] => {
 /** Returns the first focus target that should be focused automatically. */
 export const getFirstFocusTarget = (node: HTMLElement): HTMLElement | null => {
   const targets = getFocusTargets(node);
-  return targets.find(x => x.matches('[autofocus]')) || targets[0] || null;
+  return targets.find(x => x.matches('[autofocus]')) || node;
 };
 
 /** Returns the next (optionally in reverse) focus target given a target node. */
