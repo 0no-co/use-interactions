@@ -25,10 +25,12 @@ it('keeps the focus loop inside a given modal component', () => {
     </main>
   );
 
-  // starts out with first element available
-  cy.focused().contains('Focus 1');
+  // starts out with first modal element available
+  cy.focused().should('have.attr', 'aria-modal', 'true')
 
   // cycles through the modal's focusable targets only
+  cy.realPress('Tab');
+  cy.focused().contains('Focus 1');
   cy.realPress('Tab');
   cy.focused().contains('Focus 2');
   cy.realPress('Tab');

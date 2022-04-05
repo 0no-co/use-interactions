@@ -3,7 +3,13 @@ import {
   snapshotSelection,
   restoreSelection,
 } from './utils/selection';
-import { getFirstFocusTarget, getFocusTargets } from './utils/focus';
+
+import {
+  getAutofocusTarget,
+  getFirstFocusTarget,
+  getFocusTargets,
+} from './utils/focus';
+
 import { useLayoutEffect } from './utils/react';
 import { contains } from './utils/element';
 import { makePriorityHook } from './usePriority';
@@ -30,11 +36,9 @@ export function useModalFocus<T extends HTMLElement>(
       !document.activeElement ||
       !ref.current.contains(document.activeElement)
     ) {
-      const newTarget = getFirstFocusTarget(ref.current);
-      if (newTarget) {
-        selection = snapshotSelection(ref.current);
-        newTarget.focus();
-      }
+      const newTarget = getAutofocusTarget(ref.current);
+      selection = snapshotSelection(ref.current);
+      newTarget.focus();
     }
 
     function onBlur(event: FocusEvent) {

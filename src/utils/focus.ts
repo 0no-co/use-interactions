@@ -60,9 +60,19 @@ export const getFocusTargets = (node: Element): HTMLElement[] => {
 };
 
 /** Returns the first focus target that should be focused automatically. */
-export const getFirstFocusTarget = (node: HTMLElement): HTMLElement | null => {
-  const targets = getFocusTargets(node);
-  return targets.find(x => x.matches('[autofocus]')) || targets[0] || null;
+export const getFirstFocusTarget = (node: HTMLElement): HTMLElement | null =>
+  getFocusTargets(node)[0] || null;
+
+/** Returns the first focus target that should be focused automatically in a modal/dialog. */
+export const getAutofocusTarget = (node: HTMLElement): HTMLElement => {
+  const elements = node.querySelectorAll(focusableSelectors);
+  for (let i = 0, l = elements.length; i < l; i++) {
+    const element = elements[i] as HTMLElement;
+    if (isVisible(element) && element.matches('[autofocus]')) return element;
+  }
+
+  node.setAttribute('tabindex', '-1');
+  return node;
 };
 
 /** Returns the next (optionally in reverse) focus target given a target node. */
