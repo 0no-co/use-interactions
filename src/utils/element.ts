@@ -9,8 +9,8 @@ export const getTabIndex = (node: Element): number => {
 /** Returns whether an element is visible in the context of focusability. */
 export const isVisible = (node: Element): boolean =>
   !!(
-    (node as HTMLElement).offsetWidth &&
-    (node as HTMLElement).offsetHeight &&
+    (node.tagName !== 'INPUT' ||
+      (node as HTMLInputElement).type !== 'hidden') &&
     node.getClientRects().length &&
     getComputedStyle(node).visibility !== 'hidden'
   );
