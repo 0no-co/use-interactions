@@ -59,13 +59,16 @@ const animate = (element: HTMLElement, options: TransitionOptions) => {
   animation.currentTime = 0.1;
 
   let animating = false;
-  for (const propName in from) {
-    const value = /^--/.test(propName)
-      ? element.style.getPropertyValue(propName)
-      : computed[propName];
-    if (value !== from[propName]) {
-      animating = true;
-      break;
+  const media = matchMedia('(prefers-reduced-motion: reduce)');
+  if (!media.matches) {
+    for (const propName in from) {
+      const value = /^--/.test(propName)
+        ? element.style.getPropertyValue(propName)
+        : computed[propName];
+      if (value !== from[propName]) {
+        animating = true;
+        break;
+      }
     }
   }
 
