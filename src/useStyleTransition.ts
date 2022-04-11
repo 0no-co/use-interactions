@@ -18,7 +18,9 @@ const animate = (element: HTMLElement, options: TransitionOptions) => {
 
   for (const propName in style) {
     let value: string = style[propName];
-    if (typeof value === 'number') (value as string) += 'px';
+    if (typeof value === 'number' && propName !== 'opacity') {
+      (value as string) += 'px';
+    }
 
     let key: string;
     if (/^--/.test(propName)) {
@@ -80,7 +82,7 @@ const animate = (element: HTMLElement, options: TransitionOptions) => {
   });
 };
 
-export function useTransition<T extends HTMLElement>(
+export function useStyleTransition<T extends HTMLElement>(
   ref: Ref<T>,
   options?: TransitionOptions
 ): [boolean, (options: TransitionOptions) => Promise<void>] {
