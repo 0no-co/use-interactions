@@ -5,28 +5,31 @@ import { useLayoutEffect } from './utils/react';
 const animations = new WeakMap<HTMLElement, Animation>();
 
 export interface TransitionOptions {
-  style?: Style | null;
+  to?: Style | null;
+  final?: Style | null;
   duration?: number | string;
   easing?: string | [number, number, number, number];
 }
 
-const animate = (element: HTMLElement, options: TransitionOptions) => {
-  const style = options.style || {};
+const applyKeyframe = (
+  element: HTMLElement,
+  style: Style
+): [Keyframe, Keyframe] => {
   const computed = getComputedStyle(element);
   const from: Keyframe = {};
   const to: Keyframe = {};
 
   for (const propName in style) {
-    let value: string = style[propName];
-    if (typeof value === 'number' && propName !== 'opacity') {
-      (value as string) += 'px';
-    }
-
     let key: string;
+    let value: string =
+      style[propName] +
+      (typeof style[propName] === 'number' && propName !== 'opacity'
+        ? 'px'
+        : '');
     if (/^--/.test(propName)) {
       key = propName;
       from[key] = element.style.getPropertyValue(propName);
-      element.style.setProperty(key, (to[key] = value));
+      element.style.setProperty(key, value);
     } else {
       if (propName === 'transform') {
         key = propName;
@@ -37,10 +40,16 @@ const animate = (element: HTMLElement, options: TransitionOptions) => {
       }
 
       from[key] = computed[key];
-      element.style[key] = to[key] = value;
+      element.style[key] = value;
     }
+
+    if (from[key] !== value) to[key] = value;
   }
 
+  return [from, to];
+};
+
+const animate = (element: HTMLElement, options: TransitionOptions) => {
   const effect: KeyframeEffectOptions = {
     duration:
       typeof options.duration === 'number'
@@ -54,18 +63,21 @@ const animate = (element: HTMLElement, options: TransitionOptions) => {
   const prevAnimation = animations.get(element);
   if (prevAnimation) prevAnimation.cancel();
 
-  const animation = element.animate([from, to], effect);
+  const keyframes = applyKeyframe(element, options.to || {});
+  const animation = element.animate(keyframes, effect);
+
   animation.playbackRate = 1.000001;
   animation.currentTime = 0.1;
 
   let animating = false;
   const media = matchMedia('(prefers-reduced-motion: reduce)');
+  const computed = getComputedStyle(element);
   if (!media.matches) {
-    for (const propName in from) {
+    for (const propName in keyframes[1]) {
       const value = /^--/.test(propName)
         ? element.style.getPropertyValue(propName)
         : computed[propName];
-      if (value !== from[propName]) {
+      if (value !== keyframes[0][propName]) {
         animating = true;
         break;
       }
@@ -78,11 +90,19 @@ const animate = (element: HTMLElement, options: TransitionOptions) => {
     return;
   }
 
-  return new Promise<unknown>((resolve, reject) => {
+  const promise = new Promise<unknown>((resolve, reject) => {
     animations.set(element, animation);
     animation.addEventListener('cancel', reject);
     animation.addEventListener('finish', resolve);
   });
+
+  if (options.final) {
+    return promise.then(() => {
+      applyKeyframe(element, options.final!);
+    });
+  }
+
+  return promise;
 };
 
 export function useStyleTransition<T extends HTMLElement>(
@@ -91,7 +111,7 @@ export function useStyleTransition<T extends HTMLElement>(
 ): [boolean, (options: TransitionOptions) => Promise<void>] {
   if (!options) options = {};
 
-  const style = options.style || {};
+  const style = options.to || {};
   const [state, setState] = useState<[boolean, Style]>([false, style]);
   if (JSON.stringify(style) !== JSON.stringify(state[1])) {
     setState([true, style]);
