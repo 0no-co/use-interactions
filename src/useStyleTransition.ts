@@ -60,10 +60,12 @@ const animate = (element: HTMLElement, options: TransitionOptions) => {
       : options.easing || 'ease',
   };
 
+  // NOTE: Must be run before cancellation below
+  const keyframes = applyKeyframe(element, options.to || {});
+
   const prevAnimation = animations.get(element);
   if (prevAnimation) prevAnimation.cancel();
 
-  const keyframes = applyKeyframe(element, options.to || {});
   const animation = element.animate(keyframes, effect);
 
   animation.playbackRate = 1.000001;
