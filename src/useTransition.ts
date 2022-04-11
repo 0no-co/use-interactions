@@ -2,42 +2,31 @@ import type { Style, Ref } from './types';
 import { useState, useCallback } from 'react';
 import { useLayoutEffect } from './utils/react';
 
-interface AnimationState {
-  animation: Animation;
-  to: Keyframe;
-}
-
-const animations = new WeakMap<HTMLElement, AnimationState>();
+const animations = new WeakMap<HTMLElement, Animation>();
 
 export interface TransitionOptions {
-  style: Style;
+  style?: Style | null;
   duration?: number | string;
   easing?: string | [number, number, number, number];
 }
 
 const animate = (element: HTMLElement, options: TransitionOptions) => {
-  const prevState = animations.get(element);
-  const prevTo = prevState ? prevState.to : {};
+  const style = options.style || {};
   const computed = getComputedStyle(element);
   const from: Keyframe = {};
   const to: Keyframe = {};
 
-  let changed = !prevState;
-  for (const propName in options.style) {
-    let value: string = options.style[propName];
+  for (const propName in style) {
+    let value: string = style[propName];
     if (typeof value === 'number') (value as string) += 'px';
 
     let key: string;
     if (/^--/.test(propName)) {
       key = propName;
       from[key] = element.style.getPropertyValue(propName);
-      element.style.setProperty(key, (to[key] = options.style[propName]));
+      element.style.setProperty(key, (to[key] = value));
     } else {
-      if (propName === 'float') {
-        key = 'cssFloat';
-      } else if (propName === 'offset') {
-        key = 'cssOffset';
-      } else if (propName === 'transform') {
+      if (propName === 'transform') {
         key = propName;
         value =
           ('' + value || '').replace(/\w+\((?:0\w*\s*)+\)\s*/g, '') || 'none';
@@ -48,23 +37,20 @@ const animate = (element: HTMLElement, options: TransitionOptions) => {
       from[key] = computed[key];
       element.style[key] = to[key] = value;
     }
-
-    changed = changed || prevState!.to[key] !== to[key];
   }
-
-  if (!changed && Object.keys(to).length === Object.keys(prevTo).length) return;
 
   const effect: KeyframeEffectOptions = {
     duration:
       typeof options.duration === 'number'
         ? options.duration * 1000
-        : options.duration,
+        : options.duration || 1000,
     easing: Array.isArray(options.easing)
       ? `cubic-bezier(${options.easing.join(', ')})`
-      : options.easing,
+      : options.easing || 'ease',
   };
 
-  if (prevState) prevState.animation.cancel();
+  const prevAnimation = animations.get(element);
+  if (prevAnimation) prevAnimation.cancel();
 
   const animation = element.animate([from, to], effect);
   animation.playbackRate = 1.000001;
@@ -88,7 +74,7 @@ const animate = (element: HTMLElement, options: TransitionOptions) => {
   }
 
   return new Promise<unknown>((resolve, reject) => {
-    animations.set(element, { animation, to });
+    animations.set(element, animation);
     animation.addEventListener('cancel', reject);
     animation.addEventListener('finish', resolve);
   });
@@ -96,21 +82,34 @@ const animate = (element: HTMLElement, options: TransitionOptions) => {
 
 export function useTransition<T extends HTMLElement>(
   ref: Ref<T>,
-  options: TransitionOptions
+  options?: TransitionOptions
 ): [boolean, (options: TransitionOptions) => Promise<void>] {
-  const [animating, setAnimating] = useState(false);
+  if (!options) options = {};
+
+  const style = options.style || {};
+  const [state, setState] = useState<[boolean, Style]>([false, style]);
+  if (JSON.stringify(style) !== JSON.stringify(state[1])) {
+    setState([true, style]);
+  }
 
   const animateTo = useCallback(
     (options: TransitionOptions) => {
+      const updateAnimating = (animating: boolean) => {
+        setState(state =>
+          state[0] !== animating ? [animating, state[1]] : state
+        );
+      };
+
       const animation = animate(ref.current!, options);
       if (animation) {
-        setAnimating(true);
+        updateAnimating(true);
         return animation
           .then(() => {
-            setAnimating(false);
+            updateAnimating(false);
           })
           .catch(() => {});
       } else {
+        updateAnimating(false);
         return Promise.resolve();
       }
     },
@@ -118,8 +117,8 @@ export function useTransition<T extends HTMLElement>(
   );
 
   useLayoutEffect(() => {
-    animateTo(options);
-  }, [animateTo, options.style]);
+    animateTo(options!);
+  }, [animateTo, state[1]]);
 
-  return [animating, animateTo];
+  return [state[0], animateTo];
 }
