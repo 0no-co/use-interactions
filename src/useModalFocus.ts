@@ -34,7 +34,7 @@ export function useModalFocus<T extends HTMLElement>(
     let selection: RestoreSelection | null = null;
     if (
       !document.activeElement ||
-      !ref.current.contains(document.activeElement)
+      !contains(ref.current, document.activeElement)
     ) {
       const newTarget = getAutofocusTarget(ref.current);
       selection = snapshotSelection(ref.current);

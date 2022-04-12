@@ -23,14 +23,12 @@ export const makePriorityHook = () => {
     ref: Ref<T>,
     disabled?: boolean
   ): boolean {
-    function computeHasPriority(): boolean {
+    const isDisabled = !!disabled;
+    const [hasPriority, setHasPriority] = useState(() => {
       if (!ref.current) return false;
       const tempStack = priorityStack.concat(ref.current).sort(sortByHierarchy);
       return tempStack[0] === ref.current;
-    }
-
-    const isDisabled = !!disabled;
-    const [hasPriority, setHasPriority] = useState(computeHasPriority);
+    });
 
     useLayoutEffect(() => {
       if (!ref.current || isDisabled) return;
