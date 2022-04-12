@@ -107,10 +107,12 @@ const animate = (element: HTMLElement, options: TransitionOptions) => {
   return promise;
 };
 
+export type Animate = (options: TransitionOptions) => Promise<void> | void;
+
 export function useStyleTransition<T extends HTMLElement>(
   ref: Ref<T>,
   options?: TransitionOptions
-): [boolean, (options: TransitionOptions) => Promise<void>] {
+): [boolean, Animate] {
   if (!options) options = {};
 
   const style = options.to || {};
@@ -128,16 +130,13 @@ export function useStyleTransition<T extends HTMLElement>(
       };
 
       const animation = animate(ref.current!, options);
+      updateAnimating(!!animation);
       if (animation) {
-        updateAnimating(true);
         return animation
           .then(() => {
             updateAnimating(false);
           })
           .catch(() => {});
-      } else {
-        updateAnimating(false);
-        return Promise.resolve();
       }
     },
     [ref]
