@@ -9,10 +9,9 @@ type RefWithState<T extends HTMLElement> = Ref<T> & {
 export function useForwardedRef<T extends HTMLElement>(
   forwarded: ForwardedRef<T>
 ): Ref<T> {
-  const ref: RefWithState<T> = useRef<T>(null);
-  if (ref._forwarded !== forwarded) {
-    ref._forwarded = forwarded;
-    Object.defineProperty(ref, 'current', {
+  const ref = useRef<RefWithState<T> | null>(null);
+  if (!ref.current || ref.current._forwarded !== forwarded) {
+    ref.current = Object.defineProperty({ _forwarded: forwarded }, 'current', {
       enumerable: true,
       configurable: true,
       get() {
@@ -26,8 +25,7 @@ export function useForwardedRef<T extends HTMLElement>(
           this._forwarded.current = value;
         }
       },
-    });
+    }) as RefWithState<T>;
   }
-
-  return ref;
+  return ref.current;
 }

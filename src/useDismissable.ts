@@ -26,16 +26,14 @@ export function useDismissable<T extends HTMLElement>(
   }, [onDismiss]);
 
   useLayoutEffect(() => {
-    if (!ref.current || disabled) return;
+    const { current: element } = ref;
+    if (!element || disabled) return;
 
     function onFocusOut(event: FocusEvent) {
       if (event.defaultPrevented) return;
 
       const { target, relatedTarget } = event;
-      if (
-        contains(ref.current, target) &&
-        !contains(ref.current, relatedTarget)
-      ) {
+      if (contains(element, target) && !contains(element, relatedTarget)) {
         onDismissRef.current();
       }
     }
@@ -45,7 +43,7 @@ export function useDismissable<T extends HTMLElement>(
         // The current dialog can be dismissed by pressing escape if it either has focus
         // or it has priority
         const active = document.activeElement;
-        if (hasPriority || (active && contains(ref.current, active))) {
+        if (hasPriority || (active && contains(element, active))) {
           event.preventDefault();
           onDismissRef.current();
         }
@@ -54,14 +52,14 @@ export function useDismissable<T extends HTMLElement>(
 
     function onClick(event: MouseEvent | TouchEvent) {
       const { target } = event;
-      if (contains(ref.current, target) || event.defaultPrevented) {
+      if (contains(element, target) || event.defaultPrevented) {
         return;
       }
 
       // The current dialog can be dismissed by pressing outside of it if it either has
       // focus or it has priority
       const active = document.activeElement;
-      if (hasPriority || (active && contains(ref.current, active))) {
+      if (hasPriority || (active && contains(element, active))) {
         event.preventDefault();
         onDismissRef.current();
       }
@@ -80,5 +78,5 @@ export function useDismissable<T extends HTMLElement>(
       document.removeEventListener('touchstart', onClick);
       document.removeEventListener('keydown', onKey);
     };
-  }, [ref.current!, hasPriority, disabled, focusLoss]);
+  }, [ref.current, hasPriority, disabled, focusLoss]);
 }

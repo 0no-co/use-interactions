@@ -31,26 +31,25 @@ export const makePriorityHook = () => {
     });
 
     useLayoutEffect(() => {
-      if (!ref.current || isDisabled) return;
-
-      const { current } = ref;
+      const { current: element } = ref;
+      if (!element || isDisabled) return;
 
       function onChange() {
         setHasPriority(() => priorityStack[0] === ref.current);
       }
 
-      priorityStack.push(current);
+      priorityStack.push(element);
       priorityStack.sort(sortByHierarchy);
       listeners.add(onChange);
       listeners.forEach(fn => fn());
 
       return () => {
-        const index = priorityStack.indexOf(current);
+        const index = priorityStack.indexOf(element);
         priorityStack.splice(index, 1);
         listeners.delete(onChange);
         listeners.forEach(fn => fn());
       };
-    }, [ref.current!, isDisabled]);
+    }, [ref.current, isDisabled]);
 
     return hasPriority;
   };

@@ -21,12 +21,13 @@ export function useMenuFocus<T extends HTMLElement>(
   const disabled = !!(options && options.disabled);
 
   useLayoutEffect(() => {
-    if (!ref.current || disabled) return;
+    const { current: element } = ref;
+    if (!element || disabled) return;
 
     let selection: RestoreSelection | null = null;
 
     function onFocus(event: FocusEvent) {
-      if (!ref.current || event.defaultPrevented) return;
+      if (!element || event.defaultPrevented) return;
 
       const owner =
         (ownerRef && ownerRef.current) || (selection && selection.element);
@@ -35,15 +36,15 @@ export function useMenuFocus<T extends HTMLElement>(
         // When owner is explicitly passed we can make a snapshot early
         selection = snapshotSelection(owner);
       } else if (
-        contains(ref.current, target) &&
-        !contains(ref.current, relatedTarget) &&
+        contains(element, target) &&
+        !contains(element, relatedTarget) &&
         (!ownerRef || contains(relatedTarget, ownerRef.current))
       ) {
         // Check whether focus is about to move into the container and snapshot last focus
         selection = snapshotSelection(owner);
       } else if (
-        contains(ref.current, relatedTarget) &&
-        !contains(ref.current, target)
+        contains(element, relatedTarget) &&
+        !contains(element, target)
       ) {
         // Reset focus if it's lost and has left the menu
         selection = null;
@@ -51,15 +52,15 @@ export function useMenuFocus<T extends HTMLElement>(
     }
 
     function onKey(event: KeyboardEvent) {
-      if (!ref.current || event.defaultPrevented || event.isComposing) return;
+      if (!element || event.defaultPrevented || event.isComposing) return;
 
       const owner =
         (ownerRef && ownerRef.current) || (selection && selection.element);
       const active = document.activeElement as HTMLElement;
-      const focusTargets = getFocusTargets(ref.current);
+      const focusTargets = getFocusTargets(element);
       if (
         !focusTargets.length ||
-        (!contains(ref.current, active) && !contains(owner, active))
+        (!contains(element, active) && !contains(owner, active))
       ) {
         // Do nothing if container doesn't contain focus or not targets are available
         return;
@@ -100,7 +101,7 @@ export function useMenuFocus<T extends HTMLElement>(
         event.code === 'Enter'
       ) {
         // Move focus to first target when enter is pressed
-        const newTarget = getFirstFocusTarget(ref.current);
+        const newTarget = getFirstFocusTarget(element);
         if (newTarget) newTarget.focus();
       } else if (
         owner &&
@@ -129,5 +130,5 @@ export function useMenuFocus<T extends HTMLElement>(
       document.body.removeEventListener('focusin', onFocus);
       document.removeEventListener('keydown', onKey);
     };
-  }, [ref.current!, disabled]);
+  }, [ref.current, disabled]);
 }

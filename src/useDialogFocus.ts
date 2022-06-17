@@ -25,24 +25,25 @@ export function useDialogFocus<T extends HTMLElement>(
   const hasPriority = usePriority(ref, disabled);
 
   useLayoutEffect(() => {
-    if (!ref.current || disabled) return;
+    const { current: element } = ref;
+    if (!element || disabled) return;
 
     let selection = snapshotSelection(ownerRef && ownerRef.current);
     let willReceiveFocus = false;
     let focusMovesForward = true;
 
     function onClick(event: MouseEvent) {
-      if (!ref.current || event.defaultPrevented) return;
+      if (!element || event.defaultPrevented) return;
 
       const target = event.target as HTMLElement | null;
-      if (target && getFocusTargets(ref.current).indexOf(target) > -1) {
+      if (target && getFocusTargets(element).indexOf(target) > -1) {
         selection = null;
         willReceiveFocus = true;
       }
     }
 
     function onFocus(event: FocusEvent) {
-      if (!ref.current || event.defaultPrevented) return;
+      if (!element || event.defaultPrevented) return;
 
       const active = document.activeElement as HTMLElement;
       const owner =
@@ -65,7 +66,7 @@ export function useDialogFocus<T extends HTMLElement>(
         !contains(ref.current, relatedTarget)
       ) {
         // Get the next focus target of the container
-        const focusTarget = getNextFocusTarget(ref.current, !focusMovesForward);
+        const focusTarget = getNextFocusTarget(element, !focusMovesForward);
         if (focusTarget) {
           focusMovesForward = true;
           event.preventDefault();
@@ -75,7 +76,7 @@ export function useDialogFocus<T extends HTMLElement>(
     }
 
     function onKey(event: KeyboardEvent) {
-      if (!ref.current || event.defaultPrevented || event.isComposing) return;
+      if (!element || event.defaultPrevented || event.isComposing) return;
 
       // Mark whether focus is moving forward for the `onFocus` handler
       if (event.code === 'Tab') {
@@ -87,7 +88,7 @@ export function useDialogFocus<T extends HTMLElement>(
       const active = document.activeElement as HTMLElement;
       const owner =
         (ownerRef && ownerRef.current) || (selection && selection.element);
-      const focusTargets = getFocusTargets(ref.current);
+      const focusTargets = getFocusTargets(element);
 
       if (
         !focusTargets.length ||
@@ -97,7 +98,7 @@ export function useDialogFocus<T extends HTMLElement>(
         return;
       } else if (event.code === 'Tab') {
         // Skip over the listbox via the parent if we press tab
-        const currentTarget = contains(owner, active) ? owner! : ref.current;
+        const currentTarget = contains(owner, active) ? owner! : element;
         const focusTarget = getNextFocusTarget(currentTarget, event.shiftKey);
         if (focusTarget) {
           event.preventDefault();
@@ -152,7 +153,7 @@ export function useDialogFocus<T extends HTMLElement>(
         event.code === 'Enter'
       ) {
         // Move focus to first target when Enter is pressed
-        const newTarget = getFirstFocusTarget(ref.current);
+        const newTarget = getFirstFocusTarget(element);
         if (newTarget) {
           willReceiveFocus = true;
           newTarget.focus();
@@ -169,14 +170,14 @@ export function useDialogFocus<T extends HTMLElement>(
       }
     }
 
-    ref.current.addEventListener('mousedown', onClick, true);
+    element.addEventListener('mousedown', onClick, true);
     document.body.addEventListener('focusin', onFocus);
     document.addEventListener('keydown', onKey);
 
     return () => {
-      ref.current!.removeEventListener('mousedown', onClick);
+      element.removeEventListener('mousedown', onClick);
       document.body.removeEventListener('focusin', onFocus);
       document.removeEventListener('keydown', onKey);
     };
-  }, [ref.current!, disabled, hasPriority]);
+  }, [ref.current, disabled, hasPriority]);
 }
