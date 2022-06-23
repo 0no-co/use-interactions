@@ -61,21 +61,22 @@ it('should not allow the dialog to be tabbable', () => {
     const ref = useRef<HTMLUListElement>(null);
     useDialogFocus(ref);
     return (
-      <ul ref={ref} role="dialog">
-        <li tabIndex={0}>#1</li>
-        <li tabIndex={0}>#2</li>
-        <li tabIndex={0}>#3</li>
-      </ul>
+      <div>
+        <input type="text" name="text" />
+        <ul ref={ref} role="dialog">
+          <li tabIndex={0}>#1</li>
+          <li tabIndex={0}>#2</li>
+          <li tabIndex={0}>#3</li>
+        </ul>
+      </div>
     );
   };
 
   const App = () => {
-    const [hasDialog, setDialog] = useState(false);
     return (
       <main>
         <button>before</button>
-        <input type="text" name="text" onFocus={() => setDialog(true)} />
-        {hasDialog && <Dialog />}
+        <Dialog />
         <button>after</button>
       </main>
     );

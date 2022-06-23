@@ -5,7 +5,7 @@ import {
   getNextFocusTarget,
 } from './utils/focus';
 import { useLayoutEffect } from './utils/react';
-import { contains, isInputElement } from './utils/element';
+import { contains, focus, isInputElement } from './utils/element';
 import { makePriorityHook } from './usePriority';
 import { Ref } from './types';
 
@@ -59,19 +59,13 @@ export function useDialogFocus<T extends HTMLElement>(
         return;
       }
 
-      const { relatedTarget, target } = event;
       // Check whether focus is about to move into the container and prevent it
-      if (
-        contains(ref.current, target) &&
-        !contains(ref.current, relatedTarget)
-      ) {
+      if (contains(ref.current, event.target)) {
+        event.preventDefault();
         // Get the next focus target of the container
         const focusTarget = getNextFocusTarget(element, !focusMovesForward);
-        if (focusTarget) {
-          focusMovesForward = true;
-          event.preventDefault();
-          focusTarget.focus();
-        }
+        focusMovesForward = true;
+        focus(focusTarget);
       }
     }
 
@@ -98,12 +92,10 @@ export function useDialogFocus<T extends HTMLElement>(
         return;
       } else if (event.code === 'Tab') {
         // Skip over the listbox via the parent if we press tab
+        event.preventDefault();
         const currentTarget = contains(owner, active) ? owner! : element;
-        const focusTarget = getNextFocusTarget(currentTarget, event.shiftKey);
-        if (focusTarget) {
-          event.preventDefault();
-          focusTarget.focus();
-        }
+        const newTarget = getNextFocusTarget(currentTarget, event.shiftKey);
+        if (newTarget) focus(newTarget);
       } else if (
         (!isInputElement(active) && event.code === 'ArrowRight') ||
         event.code === 'ArrowDown'
@@ -165,6 +157,7 @@ export function useDialogFocus<T extends HTMLElement>(
         /^(?:Key|Digit)/.test(event.code)
       ) {
         // Restore selection if a key is pressed on input
+        event.preventDefault();
         willReceiveFocus = false;
         restoreSelection(selection);
       }
