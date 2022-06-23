@@ -64,10 +64,9 @@ export function useDialogFocus<T extends HTMLElement>(
         contains(ref.current, event.target)
       ) {
         event.preventDefault();
-        // Get the next focus target of the container
-        const focusTarget = getNextFocusTarget(element, !focusMovesForward);
         focusMovesForward = true;
-        focus(focusTarget);
+        // Get the next focus target of the container
+        focus(getNextFocusTarget(element, !focusMovesForward));
       }
     }
 
@@ -96,8 +95,7 @@ export function useDialogFocus<T extends HTMLElement>(
         // Skip over the listbox via the parent if we press tab
         event.preventDefault();
         const currentTarget = contains(owner, active) ? owner! : element;
-        const newTarget = getNextFocusTarget(currentTarget, event.shiftKey);
-        if (newTarget) focus(newTarget);
+        focus(getNextFocusTarget(currentTarget, event.shiftKey));
       } else if (
         (!isInputElement(active) && event.code === 'ArrowRight') ||
         event.code === 'ArrowDown'
