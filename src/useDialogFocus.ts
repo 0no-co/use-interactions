@@ -45,7 +45,6 @@ export function useDialogFocus<T extends HTMLElement>(
     function onFocus(event: FocusEvent) {
       if (!element || event.defaultPrevented) return;
 
-      const active = document.activeElement as HTMLElement;
       const owner =
         (ownerRef && ownerRef.current) || (selection && selection.element);
 
@@ -53,14 +52,17 @@ export function useDialogFocus<T extends HTMLElement>(
         willReceiveFocus ||
         (hasPriority && owner && contains(event.target, owner))
       ) {
-        if (!contains(ref.current, active))
+        if (!contains(ref.current, event.relatedTarget))
           selection = snapshotSelection(owner);
         willReceiveFocus = false;
         return;
       }
 
       // Check whether focus is about to move into the container and prevent it
-      if (contains(ref.current, event.target)) {
+      if (
+        (hasPriority || !contains(ref.current, event.relatedTarget)) &&
+        contains(ref.current, event.target)
+      ) {
         event.preventDefault();
         // Get the next focus target of the container
         const focusTarget = getNextFocusTarget(element, !focusMovesForward);
@@ -157,7 +159,7 @@ export function useDialogFocus<T extends HTMLElement>(
         /^(?:Key|Digit)/.test(event.code)
       ) {
         // Restore selection if a key is pressed on input
-        event.preventDefault();
+        event.stopPropagation();
         willReceiveFocus = false;
         restoreSelection(selection);
       }

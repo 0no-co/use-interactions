@@ -59,10 +59,11 @@ it('allows dialogs to be navigated without an owner', () => {
 it('should not allow the dialog to be tabbable', () => {
   const Dialog = () => {
     const ref = useRef<HTMLUListElement>(null);
-    useDialogFocus(ref);
+    const ownerRef = useRef<HTMLInputElement>(null);
+    useDialogFocus(ref, { ownerRef });
     return (
       <div>
-        <input type="text" name="text" />
+        <input type="text" name="text" ref={ownerRef} />
         <ul ref={ref} role="dialog">
           <li tabIndex={0}>#1</li>
           <li tabIndex={0}>#2</li>
@@ -183,84 +184,13 @@ it('supports nested dialogs', () => {
     const [visible, setVisible] = useState(false);
     const [nested, setNested] = useState(false);
     const ref = useRef<HTMLUListElement>(null);
+    const ownerRef = useRef<HTMLInputElement>(null);
 
-    useDialogFocus(ref, { disabled: !visible });
-
-    return (
-      <main>
-        <input type="text" name="text" onFocus={() => setVisible(true)} />
-        {visible && (
-          <ul ref={ref} role="dialog">
-            <li tabIndex={0}>Outer #1</li>
-            <li tabIndex={0} onFocus={() => setNested(true)}>Outer #2</li>
-            {nested && <InnerDialog />}
-          </ul>
-        )}
-        <button>after</button>
-      </main>
-    );
-  };
-
-  mount(<OuterDialog />);
-
-  cy.get('input').first().as('input').focus();
-  cy.focused().should('have.property.name', 'text');
-
-  // select first dialog
-  cy.realPress('ArrowDown');
-  cy.focused().contains('Outer #1');
-  cy.realPress('ArrowDown');
-  cy.focused().contains('Outer #2');
-
-  // select second dialog
-  cy.realPress('ArrowDown');
-  cy.focused().contains('Inner #1');
-  cy.realPress('ArrowDown');
-  cy.focused().contains('Inner #2');
-
-  // remains in inner dialog
-  cy.realPress('ArrowDown');
-  cy.focused().contains('Inner #1');
-
-  // tabs to last dialog
-  cy.realPress(['Shift', 'Tab']);
-  cy.focused().contains('Outer #2');
-
-  // arrows bring us back to the inner dialog
-  cy.realPress('ArrowUp');
-  cy.focused().contains('Inner #2');
-
-  // tab out of dialogs
-  cy.realPress('Tab');
-  cy.focused().contains('after');
-  // we can't reenter the dialogs
-  cy.realPress(['Shift', 'Tab']);
-  cy.get('@input').should('have.focus');
-});
-
-it('supports nested dialogs', () => {
-  const InnerDialog = () => {
-    const ref = useRef<HTMLUListElement>(null);
-    useDialogFocus(ref);
-
-    return (
-      <ul ref={ref} role="dialog">
-        <li tabIndex={0}>Inner #1</li>
-        <li tabIndex={0}>Inner #2</li>
-      </ul>
-    );
-  };
-
-  const OuterDialog = () => {
-    const [visible, setVisible] = useState(false);
-    const [nested, setNested] = useState(false);
-    const ref = useRef<HTMLUListElement>(null);
-
-    useDialogFocus(ref, { disabled: !visible });
+    useDialogFocus(ref, { disabled: !visible, ownerRef });
 
     return (
       <main>
-        <input type="text" name="text" onFocus={() => setVisible(true)} />
+        <input type="text" name="text" onFocus={() => setVisible(true)} ref={ownerRef} />
         {visible && (
           <ul ref={ref} role="dialog">
             <li tabIndex={0}>Outer #1</li>
