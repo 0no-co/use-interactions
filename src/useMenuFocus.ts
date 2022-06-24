@@ -3,7 +3,8 @@ import {
   snapshotSelection,
   restoreSelection,
 } from './utils/selection';
-import { getFirstFocusTarget, getFocusTargets } from './utils/focus';
+import { getFirstFocusTarget, getFocusTargets, focus } from './utils/focus';
+import { click } from './utils/click';
 import { useLayoutEffect } from './utils/react';
 import { contains, isInputElement } from './utils/element';
 import { Ref } from './types';
@@ -75,7 +76,7 @@ export function useMenuFocus<T extends HTMLElement>(
         const focusIndex = focusTargets.indexOf(active);
         const nextIndex =
           focusIndex < focusTargets.length - 1 ? focusIndex + 1 : 0;
-        focusTargets[nextIndex].focus();
+        focus(focusTargets[nextIndex]);
       } else if (
         (!isInputElement(active) && event.code === 'ArrowLeft') ||
         event.code === 'ArrowUp'
@@ -85,15 +86,15 @@ export function useMenuFocus<T extends HTMLElement>(
         const focusIndex = focusTargets.indexOf(active);
         const nextIndex =
           focusIndex > 0 ? focusIndex - 1 : focusTargets.length - 1;
-        focusTargets[nextIndex].focus();
+        focus(focusTargets[nextIndex]);
       } else if (event.code === 'Home') {
         // Implement Home => first item
         event.preventDefault();
-        focusTargets[0].focus();
+        focus(focusTargets[0]);
       } else if (event.code === 'End') {
         // Implement End => last item
         event.preventDefault();
-        focusTargets[focusTargets.length - 1].focus();
+        focus(focusTargets[focusTargets.length - 1]);
       } else if (
         owner &&
         isInputElement(owner) &&
@@ -101,8 +102,7 @@ export function useMenuFocus<T extends HTMLElement>(
         event.code === 'Enter'
       ) {
         // Move focus to first target when enter is pressed
-        const newTarget = getFirstFocusTarget(element);
-        if (newTarget) newTarget.focus();
+        focus(getFirstFocusTarget(element));
       } else if (
         owner &&
         !contains(ref.current, owner) &&
@@ -112,6 +112,14 @@ export function useMenuFocus<T extends HTMLElement>(
         // Restore selection if escape is pressed
         event.preventDefault();
         restoreSelection(selection);
+      } else if (
+        (event.code === 'Enter' || event.code === 'Space') &&
+        focusTargets.indexOf(active) > -1 &&
+        !isInputElement(active)
+      ) {
+        // Implement virtual click / activation for list items
+        event.preventDefault();
+        click(active);
       } else if (
         owner &&
         isInputElement(owner) &&

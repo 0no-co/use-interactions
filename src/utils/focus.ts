@@ -24,6 +24,10 @@ const sortByTabindex = <T extends HTMLElement>(
   return a[1] === a[1] ? a[0] - b[0] : a[1] - a[1];
 };
 
+/** Returns whether this node is focusable. */
+export const isFocusTarget = (node: Element): boolean =>
+  !!node.matches(focusableSelectors) && isVisible(node);
+
 /** Returns whether this node may contain focusable elements. */
 export const hasFocusTargets = (node: Element): boolean =>
   !node.matches(excludeSelector) &&
@@ -98,4 +102,13 @@ export const getNextFocusTarget = (
   }
 
   return null;
+};
+
+/** Focuses the given node or blurs if null is passed. */
+export const focus = (node: Element | null) => {
+  if (node) {
+    (node as HTMLElement).focus();
+  } else if (document.activeElement) {
+    (document.activeElement as HTMLElement).blur();
+  }
 };

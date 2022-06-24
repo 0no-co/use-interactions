@@ -3,9 +3,11 @@ import {
   getFirstFocusTarget,
   getFocusTargets,
   getNextFocusTarget,
+  focus,
 } from './utils/focus';
+import { click } from './utils/click';
 import { useLayoutEffect } from './utils/react';
-import { contains, focus, isInputElement } from './utils/element';
+import { contains, isInputElement } from './utils/element';
 import { makePriorityHook } from './usePriority';
 import { Ref } from './types';
 
@@ -33,7 +35,7 @@ export function useDialogFocus<T extends HTMLElement>(
     let focusMovesForward = true;
 
     function onClick(event: MouseEvent) {
-      if (!element || event.defaultPrevented) return;
+      if (!element || event.defaultPrevented || willReceiveFocus) return;
 
       const target = event.target as HTMLElement | null;
       if (target && getFocusTargets(element).indexOf(target) > -1) {
@@ -106,7 +108,7 @@ export function useDialogFocus<T extends HTMLElement>(
         const nextIndex =
           focusIndex < focusTargets.length - 1 ? focusIndex + 1 : 0;
         willReceiveFocus = true;
-        focusTargets[nextIndex].focus();
+        focus(focusTargets[nextIndex]);
       } else if (
         (!isInputElement(active) && event.code === 'ArrowLeft') ||
         event.code === 'ArrowUp'
@@ -117,17 +119,17 @@ export function useDialogFocus<T extends HTMLElement>(
         const nextIndex =
           focusIndex > 0 ? focusIndex - 1 : focusTargets.length - 1;
         willReceiveFocus = true;
-        focusTargets[nextIndex].focus();
+        focus(focusTargets[nextIndex]);
       } else if (event.code === 'Home') {
         // Implement Home => first item
         event.preventDefault();
         willReceiveFocus = true;
-        focusTargets[0].focus();
+        focus(focusTargets[0]);
       } else if (event.code === 'End') {
         // Implement End => last item
         event.preventDefault();
         willReceiveFocus = true;
-        focusTargets[focusTargets.length - 1].focus();
+        focus(focusTargets[focusTargets.length - 1]);
       } else if (
         owner &&
         !contains(ref.current, owner) &&
@@ -148,8 +150,17 @@ export function useDialogFocus<T extends HTMLElement>(
         const newTarget = getFirstFocusTarget(element);
         if (newTarget) {
           willReceiveFocus = true;
-          newTarget.focus();
+          focus(newTarget);
         }
+      } else if (
+        (event.code === 'Enter' || event.code === 'Space') &&
+        focusTargets.indexOf(active) > -1 &&
+        !isInputElement(active)
+      ) {
+        // Implement virtual click / activation for list items
+        event.preventDefault();
+        willReceiveFocus = true;
+        click(active);
       } else if (
         owner &&
         isInputElement(owner) &&

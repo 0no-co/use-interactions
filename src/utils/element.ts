@@ -32,11 +32,3 @@ export const contains = (
     owner &&
     (owner === node || (owner as Element).contains(node as Element))
   );
-
-export const focus = (element: Element | null) => {
-  if (element) {
-    (element as HTMLElement).focus();
-  } else if (document.activeElement) {
-    (document.activeElement as HTMLElement).blur();
-  }
-};

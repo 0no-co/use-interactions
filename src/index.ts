@@ -2,6 +2,7 @@ export * from './types';
 export * from './useModalFocus';
 export * from './useDialogFocus';
 export * from './useMenuFocus';
+export * from './useOptionFocus';
 export * from './useDismissable';
 export * from './useScrollRestoration';
 export * from './useStyleTransition';
