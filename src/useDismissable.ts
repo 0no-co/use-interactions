@@ -29,50 +29,77 @@ export function useDismissable<T extends HTMLElement>(
     const { current: element } = ref;
     if (!element || disabled) return;
 
-    function onFocusOut(event: FocusEvent) {
-      if (event.defaultPrevented) return;
+    let willLoseFocus = false;
 
+    function onFocusOut(event: FocusEvent) {
       const { target, relatedTarget } = event;
-      if (contains(element, target) && !contains(element, relatedTarget)) {
+      if (
+        !event.defaultPrevented &&
+        (relatedTarget || willLoseFocus) &&
+        contains(element, target) &&
+        !contains(element, relatedTarget)
+      ) {
+        willLoseFocus = false;
+        onDismissRef.current();
+      }
+    }
+
+    function onFocusIn(event: FocusEvent) {
+      const { target } = event;
+      if (!event.defaultPrevented && !contains(element, target)) {
         onDismissRef.current();
       }
     }
 
     function onKey(event: KeyboardEvent) {
-      if (!event.isComposing && event.code === 'Escape') {
+      if (event.isComposing) {
+        return;
+      }
+
+      const active = document.activeElement;
+      if (
+        event.code === 'Escape' &&
+        (hasPriority.current || (active && contains(element, active)))
+      ) {
         // The current dialog can be dismissed by pressing escape if it either has focus
         // or it has priority
-        const active = document.activeElement;
-        if (hasPriority || (active && contains(element, active))) {
-          event.preventDefault();
-          onDismissRef.current();
-        }
+        event.preventDefault();
+        onDismissRef.current();
+      } else if (event.code === 'Tab') {
+        willLoseFocus = true;
       }
     }
 
     function onClick(event: MouseEvent | TouchEvent) {
       const { target } = event;
-      if (contains(element, target) || event.defaultPrevented) {
-        return;
-      }
-
-      // The current dialog can be dismissed by pressing outside of it if it either has
-      // focus or it has priority
       const active = document.activeElement;
-      if (hasPriority || (active && contains(element, active))) {
+      if (event.defaultPrevented) {
+        return;
+      } else if (contains(element, target)) {
+        willLoseFocus = false;
+        return;
+      } else if (hasPriority || (active && contains(element, active))) {
+        // The current dialog can be dismissed by pressing outside of it if it either has
+        // focus or it has priority
         event.preventDefault();
         onDismissRef.current();
       }
     }
 
-    if (focusLoss) document.body.addEventListener('focusout', onFocusOut);
+    if (focusLoss) {
+      document.body.addEventListener('focusout', onFocusOut);
+      document.body.addEventListener('focusin', onFocusIn);
+    }
 
     document.addEventListener('mousedown', onClick);
     document.addEventListener('touchstart', onClick);
     document.addEventListener('keydown', onKey);
 
     return () => {
-      if (focusLoss) document.body.removeEventListener('focusout', onFocusOut);
+      if (focusLoss) {
+        document.body.removeEventListener('focusout', onFocusOut);
+        document.body.removeEventListener('focusin', onFocusIn);
+      }
 
       document.removeEventListener('mousedown', onClick);
       document.removeEventListener('touchstart', onClick);

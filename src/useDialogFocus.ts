@@ -38,7 +38,7 @@ export function useDialogFocus<T extends HTMLElement>(
       if (!element || event.defaultPrevented || willReceiveFocus) return;
 
       const target = event.target as HTMLElement | null;
-      if (target && getFocusTargets(element).indexOf(target) > -1) {
+      if (target && contains(element, target)) {
         selection = null;
         willReceiveFocus = true;
       }
@@ -52,7 +52,7 @@ export function useDialogFocus<T extends HTMLElement>(
 
       if (
         willReceiveFocus ||
-        (hasPriority && owner && contains(event.target, owner))
+        (hasPriority.current && owner && contains(event.target, owner))
       ) {
         if (!contains(ref.current, event.relatedTarget))
           selection = snapshotSelection(owner);
@@ -62,13 +62,13 @@ export function useDialogFocus<T extends HTMLElement>(
 
       // Check whether focus is about to move into the container and prevent it
       if (
-        (hasPriority || !contains(ref.current, event.relatedTarget)) &&
+        (hasPriority.current || !contains(ref.current, event.relatedTarget)) &&
         contains(ref.current, event.target)
       ) {
         event.preventDefault();
-        focusMovesForward = true;
         // Get the next focus target of the container
         focus(getNextFocusTarget(element, !focusMovesForward));
+        focusMovesForward = true;
       }
     }
 
@@ -78,7 +78,7 @@ export function useDialogFocus<T extends HTMLElement>(
       // Mark whether focus is moving forward for the `onFocus` handler
       if (event.code === 'Tab') {
         focusMovesForward = !event.shiftKey;
-      } else if (!hasPriority) {
+      } else if (!hasPriority.current) {
         return;
       }
 
@@ -183,5 +183,5 @@ export function useDialogFocus<T extends HTMLElement>(
       document.body.removeEventListener('focusin', onFocus);
       document.removeEventListener('keydown', onKey);
     };
-  }, [ref.current, disabled, hasPriority]);
+  }, [ref.current, disabled]);
 }

@@ -160,17 +160,12 @@ it('supports being attached to an owner element', () => {
   cy.get('@input')
     .should('have.focus')
     .should('have.value', 'test');
-
-  // pressing escape should refocus input
-  cy.get('li').first().focus();
-  cy.realPress('Escape');
-  cy.get('@input').should('have.focus');
 });
 
 it('supports nested dialogs', () => {
-  const InnerDialog = () => {
+  const InnerDialog = ({ ownerRef }) => {
     const ref = useRef<HTMLUListElement>(null);
-    useDialogFocus(ref);
+    useDialogFocus(ref, { ownerRef });
 
     return (
       <ul ref={ref} role="dialog">
@@ -195,7 +190,7 @@ it('supports nested dialogs', () => {
           <ul ref={ref} role="dialog">
             <li tabIndex={0}>Outer #1</li>
             <li tabIndex={0} onFocus={() => setNested(true)}>Outer #2</li>
-            {nested && <InnerDialog />}
+            {nested && <InnerDialog ownerRef={ref} />}
           </ul>
         )}
         <button>after</button>
@@ -226,18 +221,11 @@ it('supports nested dialogs', () => {
 
   // tabs to last dialog
   cy.realPress(['Shift', 'Tab']);
-  cy.focused().contains('Outer #2');
-
-  // arrows bring us back to the inner dialog
-  cy.realPress('ArrowUp');
-  cy.focused().contains('Inner #2');
+  cy.get('@input').should('have.focus');
 
   // tab out of dialogs
   cy.realPress('Tab');
   cy.focused().contains('after');
-  // we can't reenter the dialogs
-  cy.realPress(['Shift', 'Tab']);
-  cy.get('@input').should('have.focus');
 });
 
 it('allows dialogs in semantic order', () => {

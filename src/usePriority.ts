@@ -22,20 +22,21 @@ export const makePriorityHook = () => {
   return function usePriority<T extends HTMLElement>(
     ref: Ref<T>,
     disabled?: boolean
-  ): boolean {
+  ): { current: boolean } {
     const isDisabled = !!disabled;
-    const [hasPriority, setHasPriority] = useState(() => {
-      if (!ref.current) return false;
-      const tempStack = priorityStack.concat(ref.current).sort(sortByHierarchy);
-      return tempStack[0] === ref.current;
-    });
+    const [hasPriority] = useState(() => ({
+      current:
+        !!ref.current &&
+        priorityStack.concat(ref.current).sort(sortByHierarchy)[0] ===
+          ref.current,
+    }));
 
     useLayoutEffect(() => {
       const { current: element } = ref;
       if (!element || isDisabled) return;
 
       function onChange() {
-        setHasPriority(() => priorityStack[0] === ref.current);
+        hasPriority.current = priorityStack[0] === ref.current;
       }
 
       priorityStack.push(element);

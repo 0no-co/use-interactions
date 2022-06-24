@@ -1,4 +1,4 @@
-import React, { ReactNode, useState, useLayoutEffect, useRef } from 'react';
+import React, { ReactNode, useState, useReducer, useLayoutEffect, useRef } from 'react';
 import { mount } from '@cypress/react';
 
 import { makePriorityHook } from '../usePriority';
@@ -9,14 +9,29 @@ const FocusOnPriority = (
   { id, children = null }:
   { id: string, children?: ReactNode }
 ) => {
+  const forceUpdate = useReducer(() => [], [])[1]
   const ref = useRef<HTMLDivElement>(null);
   const hasPriority = usePriority(ref);
 
+  if (!(hasPriority as any).__marked) {
+    (hasPriority as any).__marked = true;
+    let current = hasPriority.current
+    Object.defineProperty(hasPriority, 'current', {
+      get() {
+        return current;
+      },
+      set(value) {
+        current = value;
+        forceUpdate();
+      },
+    })
+  }
+
   useLayoutEffect(() => {
-    if (hasPriority && ref.current) {
+    if (hasPriority.current && ref.current) {
       ref.current!.focus();
     }
-  }, [hasPriority, ref]);
+  }, [hasPriority.current, ref]);
 
   return (
     <div tabIndex={-1} ref={ref} id={id}>

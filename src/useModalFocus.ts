@@ -30,7 +30,7 @@ export function useModalFocus<T extends HTMLElement>(
 
   useLayoutEffect(() => {
     const { current: element } = ref;
-    if (!element || !hasPriority || disabled) return;
+    if (!element || disabled) return;
 
     let selection: RestoreSelection | null = null;
     if (!document.activeElement || !contains(element, document.activeElement)) {
@@ -40,7 +40,7 @@ export function useModalFocus<T extends HTMLElement>(
     }
 
     function onBlur(event: FocusEvent) {
-      if (!element || event.defaultPrevented) return;
+      if (!hasPriority.current || !element || event.defaultPrevented) return;
 
       if (
         contains(element, event.target) &&
@@ -52,7 +52,7 @@ export function useModalFocus<T extends HTMLElement>(
     }
 
     function onKeyDown(event: KeyboardEvent) {
-      if (!element || event.defaultPrevented) return;
+      if (!hasPriority.current || !element || event.defaultPrevented) return;
 
       if (event.code === 'Tab') {
         const activeElement = document.activeElement as HTMLElement;
