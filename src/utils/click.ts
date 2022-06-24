@@ -23,7 +23,7 @@ export const click = (node: Element) => {
       target = node.querySelector(clickableSelectors);
     }
 
-    if (target) (target as HTMLElement).click();
+    ((target || node) as HTMLElement).click();
     focus(activeElement);
   }
 };
