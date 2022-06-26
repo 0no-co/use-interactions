@@ -1,21 +1,13 @@
-<div align="center">
-  <h2 align="center">use-interactions</h2>
-  <p align="center"><strong>A collection of React hooks for interactions with a single goal: Making it easier to add accessible and expected web interactions.</strong></p>
-  <br />
-  <a href="https://npmjs.com/package/use-interactions">
-    <img alt="NPM Version" src="https://img.shields.io/npm/v/use-interactions.svg" />
-  </a>
-  <a href="https://npmjs.com/package/use-interactions">
-    <img alt="License" src="https://img.shields.io/npm/l/use-interactions.svg" />
-  </a>
-  <a href="https://bundlephobia.com/result?p=use-interactions">
-    <img alt="Minified gzip size" src="https://img.shields.io/bundlephobia/minzip/use-interactions.svg?label=gzip%20size" />
-  </a>
-  <br />
-  <br />
-</div>
+<img width="890" alt="useInteractions" src="https://user-images.githubusercontent.com/2041385/175799707-a9187ab1-97d3-45b1-b594-10c62253d4da.svg">
+<br>
 
+React hooks for accessible, common web interactions. **UI super powers without the UI.**
 
-## Maintenance Status
+`use-interactions` is an experimental and incomplete collection of utility hooks to selectively provide accessible behaviours, animations, and other tricky interactions that would otherwise slow you down when building an accessible application. All UI and styling is up to you and ARIA authoring is only based on advice.
 
-**Experimental:** This project is quite new. We're not sure what our ongoing maintenance plan for this project will be. Bug reports, feature requests and pull requests are welcome. If you like this project, let us know!
+<a href="https://npmjs.com/package/use-interactions"><img alt="NPM Version" src="https://img.shields.io/npm/v/use-interactions.svg?style=flat-square" /></a>
+<a href="https://npmjs.com/package/use-interactions"><img alt="License" src="https://img.shields.io/npm/l/use-interactions.svg?style=flat-square" /></a>
+<a href="https://bundlephobia.com/result?p=use-interactions"><img alt="Minified gzip size" src="https://img.shields.io/bundlephobia/minzip/use-interactions.svg?label=gzip%20size&style=flat-square" /></a>
+<br><br><br>
+
+**Website with Patterns coming soon.**
