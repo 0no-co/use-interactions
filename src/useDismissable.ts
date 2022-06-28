@@ -56,11 +56,7 @@ export function useDismissable<T extends HTMLElement>(
         return;
       }
 
-      const active = document.activeElement;
-      if (
-        event.code === 'Escape' &&
-        (hasPriority.current || (active && contains(element, active)))
-      ) {
+      if (event.code === 'Escape' && hasPriority.current) {
         // The current dialog can be dismissed by pressing escape if it either has focus
         // or it has priority
         event.preventDefault();
@@ -72,16 +68,14 @@ export function useDismissable<T extends HTMLElement>(
 
     function onClick(event: MouseEvent | TouchEvent) {
       const { target } = event;
-      const active = document.activeElement;
       if (event.defaultPrevented) {
         return;
       } else if (contains(element, target)) {
         willLoseFocus = false;
         return;
-      } else if (hasPriority || (active && contains(element, active))) {
+      } else if (hasPriority.current) {
         // The current dialog can be dismissed by pressing outside of it if it either has
         // focus or it has priority
-        event.preventDefault();
         onDismissRef.current();
       }
     }

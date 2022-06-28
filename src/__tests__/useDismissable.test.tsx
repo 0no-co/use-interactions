@@ -94,31 +94,6 @@ it('is not dismissed by pressing Escape when it does not have priority', () => {
   cy.get('@inside').should('not.be.visible');
 });
 
-it('is dismissed without priority when it has focus', () => {
-  const Second = () => {
-    const ref = useRef<HTMLDivElement>(null);
-    useDismissable(ref, () => {});
-    return <div ref={ref} />;
-  };
-
-  mount(
-    <main>
-      <button className="outside">outside</button>
-      <Dialog />
-      <Second />
-    </main>
-  );
-
-  cy.get('.inside').as('inside').should('be.visible');
-  // not dismissed with escape press
-  cy.realPress('Escape');
-  cy.get('@inside').should('be.visible');
-  // is dismissed when it has focus
-  cy.get('@inside').focus();
-  cy.realPress('Escape');
-  cy.get('@inside').should('not.be.visible');
-});
-
 it('is dismissed when focus moves out of it, with focus loss active', () => {
   mount(
     <main>
