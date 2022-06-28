@@ -50,7 +50,7 @@ export const snapshotSelection = (
   const selection = window.getSelection && window.getSelection();
   if (selection && selection.rangeCount) {
     const range = selection.getRangeAt(0);
-    if (contains(target, range.startContainer)) {
+    if (range.startContainer && contains(target, range.startContainer)) {
       return { element, method: 'range', range };
     }
   }

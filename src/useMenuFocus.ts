@@ -135,6 +135,11 @@ export function useMenuFocus<T extends HTMLElement>(
     document.addEventListener('keydown', onKey);
 
     return () => {
+      const active = document.activeElement as HTMLElement;
+      if (!active || contains(element, active)) {
+        restoreSelection(selection);
+      }
+
       document.body.removeEventListener('focusin', onFocus);
       document.removeEventListener('keydown', onKey);
     };
