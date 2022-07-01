@@ -179,14 +179,14 @@ export function useDialogFocus<T extends HTMLElement>(
     document.addEventListener('keydown', onKey);
 
     return () => {
+      element.removeEventListener('mousedown', onClick);
+      document.body.removeEventListener('focusin', onFocus);
+      document.removeEventListener('keydown', onKey);
+
       const active = document.activeElement as HTMLElement;
       if (!active || contains(element, active)) {
         restoreSelection(selection);
       }
-
-      element.removeEventListener('mousedown', onClick);
-      document.body.removeEventListener('focusin', onFocus);
-      document.removeEventListener('keydown', onKey);
     };
   }, [ref.current, disabled]);
 }

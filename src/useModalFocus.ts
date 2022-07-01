@@ -29,17 +29,20 @@ export function useModalFocus<T extends HTMLElement>(
   const hasPriority = usePriority(ref, disabled);
 
   useLayoutEffect(() => {
-    const { current: element } = ref;
-    if (!element || disabled) return;
+    if (disabled) return;
 
     let selection: RestoreSelection | null = null;
-    if (!document.activeElement || !contains(element, document.activeElement)) {
-      const newTarget = getAutofocusTarget(element);
-      selection = snapshotSelection(element);
-      newTarget.focus();
+    if (
+      !document.activeElement ||
+      !contains(ref.current, document.activeElement)
+    ) {
+      const newTarget = ref.current ? getAutofocusTarget(ref.current) : null;
+      selection = snapshotSelection();
+      if (newTarget) newTarget.focus();
     }
 
     function onBlur(event: FocusEvent) {
+      const { current: element } = ref;
       if (!hasPriority.current || !element || event.defaultPrevented) return;
 
       if (
@@ -52,6 +55,7 @@ export function useModalFocus<T extends HTMLElement>(
     }
 
     function onKeyDown(event: KeyboardEvent) {
+      const { current: element } = ref;
       if (!hasPriority.current || !element || event.defaultPrevented) return;
 
       if (event.code === 'Tab') {
@@ -72,9 +76,9 @@ export function useModalFocus<T extends HTMLElement>(
     document.addEventListener('keydown', onKeyDown);
 
     return () => {
-      restoreSelection(selection);
       document.body.removeEventListener('focusout', onBlur);
       document.removeEventListener('keydown', onKeyDown);
+      restoreSelection(selection);
     };
-  }, [ref.current, hasPriority, disabled]);
+  }, [ref, hasPriority, disabled]);
 }
