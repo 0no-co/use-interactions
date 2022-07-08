@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite';
 import preact from '@preact/preset-vite';
 import path from 'path';
+import fs from 'fs';
 import * as core from '@contentlayer/core';
 import { errorToString } from '@contentlayer/utils';
 import { E, pipe, S, T } from '@contentlayer/utils/effect';
@@ -39,33 +40,28 @@ const runContentlayerDev = async ({ configPath }) => {
   );
 };
 
+// TODO: actual build step
+
 const plugin = {
   name: 'vite:contentlayer',
-  async resolveId(id) {
+  async buildStart() {
+    runContentlayerDev({
+      configPath: path.resolve('.', 'contentlayer.config.ts'),
+    });
+  },
+  async resolveId(id, importer) {
     if (id === virtualModuleId) {
-      await runContentlayerDev({
-        configPath: path.resolve('.', 'contentlayer.config.ts'),
-      });
       return resolvedVirtualModuleId;
+    } else if (importer === resolvedVirtualModuleId) {
+      return path.resolve('.', '.contentlayer', 'generated', id);
     }
   },
   async load(id) {
-    try {
-      console.log(id === resolvedVirtualModuleId);
-      if (id === resolvedVirtualModuleId) {
-        console.log('running');
-        console.log(
-          path.resolve('.', '.contentlayer', 'generated', 'index.mjs')
-        );
-        const result = fs.readFileSync(
-          path.resolve('.', '.contentlayer', 'generated', 'index.mjs'),
-          'utf-8'
-        );
-        console.log(result);
-        return 'export const allPosts = []';
-      }
-    } catch (e) {
-      console.error(e);
+    if (id === resolvedVirtualModuleId) {
+      return fs.readFileSync(
+        path.resolve('.', '.contentlayer', 'generated', 'index.mjs'),
+        'utf-8'
+      );
     }
   },
 };
