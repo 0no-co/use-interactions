@@ -1,10 +1,12 @@
-// @ts-ignore
-import { allPosts } from "virtual:contentlayer/generated";
+import { Sidebar } from "./components/Sidebar";
 
 export function App() {
   return (
-    <main>
-      {allPosts.map((x: any) => <p>{x.title}</p>)}
-    </main>
+    <div>
+      <Sidebar />
+      <main>
+        Content goes here
+      </main>
+    </div>
   )
 }
