@@ -6,10 +6,13 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "build:server": "vite build --ssr src/entry-server.tsx --outDir dist/server && mv dist/server/entry-server.js dist/server/entry-server.cjs",
+    "generate": "vite build --outDir dist && yarn build:server && node prerender"
   },
   "dependencies": {
-    "preact": "^10.5.15"
+    "preact": "^10.5.15",
+    "preact-render-to-string": "^5.2.0"
   },
   "devDependencies": {
     "@contentlayer/core": "^0.2.5",

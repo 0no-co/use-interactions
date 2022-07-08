@@ -1,10 +1,9 @@
 import { defineConfig } from 'vite';
 import preact from '@preact/preset-vite';
 import path from 'path';
-import fs from 'fs';
 import * as core from '@contentlayer/core';
 import { errorToString } from '@contentlayer/utils';
-import { E, pipe, S, T } from '@contentlayer/utils/effect';
+import { E, pipe, S, T, OT } from '@contentlayer/utils/effect';
 
 const virtualModuleId = 'virtual:contentlayer/generated';
 const resolvedVirtualModuleId = '\0' + virtualModuleId;
@@ -40,33 +39,57 @@ const runContentlayerDev = async ({ configPath }) => {
   );
 };
 
-// TODO: actual build step
+export const runContentlayerBuild = async ({ configPath }) => {
+  if (contentlayerInitialized) return;
+  contentlayerInitialized = true;
 
-const plugin = {
-  name: 'vite:contentlayer',
-  async buildStart() {
-    runContentlayerDev({
-      configPath: path.resolve('.', 'contentlayer.config.ts'),
-    });
-  },
-  async resolveId(id, importer) {
-    if (id === virtualModuleId) {
-      return resolvedVirtualModuleId;
-    } else if (importer === resolvedVirtualModuleId) {
-      return path.resolve('.', '.contentlayer', 'generated', id);
-    }
-  },
-  async load(id) {
-    if (id === resolvedVirtualModuleId) {
-      return fs.readFileSync(
-        path.resolve('.', '.contentlayer', 'generated', 'index.mjs'),
-        'utf-8'
-      );
-    }
-  },
+  await pipe(
+    core.getConfig({ configPath }),
+    T.chain(config => core.generateDotpkg({ config, verbose: false })),
+    T.tap(core.logGenerateInfo),
+    OT.withSpan('vite-contentlayer:runContentlayerBuild'),
+    runMain
+  );
 };
 
-// https://vitejs.dev/config/
+let shouldBuild;
+
+const plugin = ({ configPath }) => {
+  return {
+    name: 'vite:contentlayer',
+    configResolved(config) {
+      console.log('resolving config');
+      shouldBuild = config.command === 'build' || config.isProduction;
+    },
+    async buildStart() {
+      console.log('starting build', shouldBuild);
+      if (shouldBuild) {
+        await runContentlayerBuild({
+          configPath,
+        });
+      } else {
+        runContentlayerDev({
+          configPath,
+        });
+      }
+    },
+    async resolveId(id, importer) {
+      if (id === virtualModuleId) {
+        return path.resolve('.', '.contentlayer', 'generated', 'index.mjs');
+      } else if (importer === resolvedVirtualModuleId) {
+        return path.resolve('.', '.contentlayer', 'generated', id);
+      }
+    },
+  };
+};
+
 export default defineConfig({
-  plugins: [preact(), plugin],
+  // @ts-ignore
+  ssr: {
+    noExternal: /./,
+  },
+  plugins: [
+    preact(),
+    plugin({ configPath: path.resolve('.', 'contentlayer.config.ts') }),
+  ],
 });

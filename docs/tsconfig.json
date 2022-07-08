@@ -19,7 +19,8 @@
     "jsxFactory": "h",
     "jsxFragmentFactory": "Fragment",
     "paths": {
-      "contentlayer/generated": ["./.contentlayer/generated"]
+      "contentlayer/generated": ["./.contentlayer/generated"],
+      "virtula:contentlayer/generated": ["./.contentlayer/generated"]
     }
   },
   "include": ["src"],

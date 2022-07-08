@@ -2145,10 +2145,22 @@ postcss@^8.4.13:
     picocolors "^1.0.0"
     source-map-js "^1.0.2"
 
+preact-render-to-string@^5.2.0:
+  version "5.2.0"
+  resolved "https://registry.yarnpkg.com/preact-render-to-string/-/preact-render-to-string-5.2.0.tgz#3d3c4f9c570229b76d33353ed02ce662bd13dec1"
+  integrity sha512-+RGwSW78Cl+NsZRUbFW1MGB++didsfqRk+IyRVTaqy+3OjtpKK/6HgBtfszUX0YXMfo41k2iaQSseAHGKEwrbg==
+  dependencies:
+    pretty-format "^3.8.0"
+
 preact@^10.5.15:
   version "10.9.0"
   resolved "https://registry.yarnpkg.com/preact/-/preact-10.9.0.tgz#69b282b26926b66481c9ae3450cf68610fee29ff"
   integrity sha512-jO6/OvCRL+OT8gst/+Q2ir7dMybZAX8ioP02Zmzh3BkQMHLyqZSujvxbUriXvHi8qmhcHKC2Gwbog6Kt+YTh+Q==
+
+pretty-format@^3.8.0:
+  version "3.8.0"
+  resolved "https://registry.yarnpkg.com/pretty-format/-/pretty-format-3.8.0.tgz#bfbed56d5e9a776645f4b1ff7aa1a3ac4fa3c385"
+  integrity sha512-WuxUnVtlWL1OfZFQFuqvnvs6MiAGk9UNsBostyBOB0Is9wb5uRESevA6rnl/rkksXaGX3GzZhPup5d6Vp1nFew==
 
 property-information@^6.0.0:
   version "6.1.1"
