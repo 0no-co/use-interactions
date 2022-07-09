@@ -11,7 +11,9 @@
     "generate": "vite build --outDir dist && yarn build:server && node prerender"
   },
   "dependencies": {
+    "goober": "^2.1.10",
     "preact": "^10.5.15",
+    "preact-iso": "^2.3.0",
     "preact-render-to-string": "^5.2.0"
   },
   "devDependencies": {
