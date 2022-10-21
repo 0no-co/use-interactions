@@ -11,3 +11,11 @@ React hooks for accessible, common web interactions. **UI super powers without t
 <br><br><br>
 
 **Website with Patterns coming soon.**
+
+## Development
+
+1. Install deps with `yarn install`
+2. Run tests with `yarn test`
+3. Alternatively, you can use `yarn test:open` to run Cypress UI, where you can visual see the browser running tests so they can be easier to debug.
+
+We use [Cypress component testing](https://docs.cypress.io/guides/component-testing/writing-your-first-component-test), and this is how we develop and test the react hooks offered by this library.

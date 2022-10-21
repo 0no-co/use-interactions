@@ -133,9 +133,7 @@ it('supports being attached to an owner element', () => {
   // typing regular values should refocus the owner input
   cy.get('li').first().focus();
   cy.realType('test');
-  cy.get('@input')
-    .should('have.focus')
-    .should('have.value', 'test');
+  cy.get('@input').should('have.focus').should('have.value', 'test');
 
   // pressing escape should refocus input
   cy.get('li').first().focus();
@@ -200,4 +198,33 @@ it('behaves nicely for nested menus', () => {
   cy.focused().contains('Inner #2');
   cy.realPress('ArrowDown');
   cy.focused().contains('Inner #1');
+});
+
+it('should not focus first menu item if input is not part of the menu', () => {
+  const Menu = () => {
+    const ref = useRef<HTMLUListElement>(null);
+    useMenuFocus(ref);
+
+    return (
+      <main>
+        <input type="search" name="search" />
+        <ul ref={ref}>
+          <li tabIndex={0}>#1</li>
+          <li tabIndex={0}>#2</li>
+          <li tabIndex={0}>#3</li>
+        </ul>
+      </main>
+    );
+  };
+
+  mount(<Menu />);
+
+  // focus the input
+  cy.get('input').first().as('input').focus();
+  cy.focused().should('have.property.name', 'search');
+
+  // pressing enter should not focus the first item
+  cy.get('@input').focus();
+  cy.realPress('Enter');
+  cy.get('@input').should('have.focus');
 });
