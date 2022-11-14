@@ -96,9 +96,10 @@ export function useMenuFocus<T extends HTMLElement>(
         event.preventDefault();
         focus(focusTargets[focusTargets.length - 1]);
       } else if (
-        ownerRef?.current &&
-        isInputElement(ownerRef?.current) &&
-        contains(ownerRef?.current, active) &&
+        ownerRef &&
+        ownerRef.current &&
+        isInputElement(ownerRef.current) &&
+        contains(ownerRef.current, active) &&
         event.code === 'Enter'
       ) {
         // Move focus to first target when enter is pressed
