@@ -23,6 +23,11 @@
     chalk "^2.0.0"
     js-tokens "^4.0.0"
 
+"@cypress/mount-utils@^4.0.0":
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/@cypress/mount-utils/-/mount-utils-4.0.0.tgz#647c24158caddc656741648291c77dfa1b6b1621"
+  integrity sha512-4w8WZpOALz5+vhJmPfh2HkT4NMsRP2DgVqSXxXu46GR5yUGfqJ0+WgUrmVuujtKKY6n1mDiO1L4AfZ+4bsEYGQ==
+
 "@cypress/react@^6.2.0":
   version "6.2.0"
   resolved "https://registry.yarnpkg.com/@cypress/react/-/react-6.2.0.tgz#5816ecd26b1595483e0ae6e4eb0dca0725d07197"

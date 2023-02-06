@@ -53,6 +53,7 @@
     "react": ">= 16.8.0"
   },
   "devDependencies": {
+    "@cypress/mount-utils": "^4.0.0",
     "@cypress/react": "^6.2.0",
     "@cypress/vite-dev-server": "^3.3.1",
     "@rollup/plugin-buble": "^0.21.3",
