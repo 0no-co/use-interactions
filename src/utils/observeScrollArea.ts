@@ -3,7 +3,7 @@ const mutationObservers: Map<HTMLElement, MutationObserver> = new Map();
 const resizeListeners: Map<HTMLElement, Array<() => void>> = new Map();
 
 const resizeObserver =
-  typeof window !== 'undefined'
+  typeof ResizeObserver !== 'undefined'
     ? new ResizeObserver(entries => {
         const parents = new Set<Element>();
         for (let i = 0; i < entries.length; i++) {
