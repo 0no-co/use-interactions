@@ -13,7 +13,7 @@ export interface DismissableOptions {
 
 export function useDismissable<T extends HTMLElement>(
   ref: Ref<T>,
-  onDismiss: () => void,
+  onDismiss: (event: Event) => void,
   options?: DismissableOptions
 ) {
   const focusLoss = !!(options && options.focusLoss);
@@ -40,14 +40,14 @@ export function useDismissable<T extends HTMLElement>(
         !contains(element, relatedTarget)
       ) {
         willLoseFocus = false;
-        onDismissRef.current();
+        onDismissRef.current(event);
       }
     }
 
     function onFocusIn(event: FocusEvent) {
       const { target } = event;
       if (!event.defaultPrevented && !contains(element, target)) {
-        onDismissRef.current();
+        onDismissRef.current(event);
       }
     }
 
@@ -60,7 +60,7 @@ export function useDismissable<T extends HTMLElement>(
         // The current dialog can be dismissed by pressing escape if it either has focus
         // or it has priority
         event.preventDefault();
-        onDismissRef.current();
+        onDismissRef.current(event);
       } else if (event.code === 'Tab') {
         willLoseFocus = true;
       }
@@ -76,7 +76,8 @@ export function useDismissable<T extends HTMLElement>(
       } else if (hasPriority.current) {
         // The current dialog can be dismissed by pressing outside of it if it either has
         // focus or it has priority
-        onDismissRef.current();
+        event.preventDefault();
+        onDismissRef.current(event);
       }
     }
 
