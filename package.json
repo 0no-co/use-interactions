@@ -29,8 +29,8 @@
   },
   "scripts": {
     "check": "tsc",
-    "test": "cypress run --component --browser chrome",
-    "test:open": "cypress open --component --browser chrome",
+    "test": "cypress run --component",
+    "test:open": "cypress open --component",
     "build": "rollup -c rollup.config.js",
     "prepublishOnly": "run-s check build"
   },
