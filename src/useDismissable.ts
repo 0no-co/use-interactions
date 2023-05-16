@@ -81,23 +81,23 @@ export function useDismissable<T extends HTMLElement>(
     }
 
     if (focusLoss) {
-      document.body.addEventListener('focusout', onFocusOut);
-      document.body.addEventListener('focusin', onFocusIn);
+      document.body.addEventListener('focusout', onFocusOut, true);
+      document.body.addEventListener('focusin', onFocusIn, true);
     }
 
-    document.addEventListener('mousedown', onClick);
-    document.addEventListener('touchstart', onClick);
-    document.addEventListener('keydown', onKey);
+    document.addEventListener('click', onClick, true);
+    document.addEventListener('touchstart', onClick, true);
+    document.addEventListener('keydown', onKey, true);
 
     return () => {
       if (focusLoss) {
-        document.body.removeEventListener('focusout', onFocusOut);
-        document.body.removeEventListener('focusin', onFocusIn);
+        document.body.removeEventListener('focusout', onFocusOut, true);
+        document.body.removeEventListener('focusin', onFocusIn, true);
       }
 
-      document.removeEventListener('mousedown', onClick);
-      document.removeEventListener('touchstart', onClick);
-      document.removeEventListener('keydown', onKey);
+      document.removeEventListener('click', onClick, true);
+      document.removeEventListener('touchstart', onClick, true);
+      document.removeEventListener('keydown', onKey, true);
     };
   }, [ref.current, hasPriority, disabled, focusLoss]);
 }
