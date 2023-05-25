@@ -1,29 +1,11 @@
 import { contains } from './element';
 
-interface RestoreInputSelection {
-  element: HTMLInputElement;
-  method: 'setSelectionRange';
-  arguments: [number, number, 'forward' | 'backward' | 'none' | undefined];
-}
-
-interface RestoreActiveNode {
+export interface RestoreSelection {
   element: HTMLElement;
-  method: 'focus';
+  restore(): void;
 }
-
-interface RestoreSelectionRange {
-  element: HTMLElement;
-  method: 'range';
-  range: Range;
-}
-
-export type RestoreSelection =
-  | RestoreInputSelection
-  | RestoreActiveNode
-  | RestoreSelectionRange;
 
 const hasSelection = (node: HTMLElement): node is HTMLInputElement =>
-  (node.nodeName === 'INPUT' || node.nodeName === 'TEXTAREA') &&
   typeof (node as HTMLInputElement).selectionStart === 'number' &&
   typeof (node as HTMLInputElement).selectionEnd === 'number';
 
@@ -36,41 +18,46 @@ export const snapshotSelection = (
   if (!element || !target) {
     return null;
   } else if (hasSelection(element)) {
+    const { selectionStart, selectionEnd, selectionDirection } = element;
     return {
       element,
-      method: 'setSelectionRange',
-      arguments: [
-        element.selectionStart!,
-        element.selectionEnd!,
-        element.selectionDirection || undefined,
-      ],
+      restore() {
+        element.focus();
+        element.setSelectionRange(
+          selectionStart,
+          selectionEnd,
+          selectionDirection || undefined
+        );
+      },
     };
   }
 
-  const selection = window.getSelection && window.getSelection();
+  let range: Range | undefined;
+
+  const selection = window.getSelection();
   if (selection && selection.rangeCount) {
-    const range = selection.getRangeAt(0);
-    if (range.startContainer && contains(target, range.startContainer)) {
-      return { element, method: 'range', range };
+    const _range = selection.getRangeAt(0);
+    if (_range.startContainer && contains(target, _range.startContainer)) {
+      range = _range;
     }
   }
 
-  return { element, method: 'focus' };
+  return {
+    element,
+    restore() {
+      element.focus();
+      const selection = window.getSelection();
+      if (range && selection) {
+        selection.removeAllRanges();
+        selection.addRange(range);
+      }
+    },
+  };
 };
 
 /** Restores a given snapshot of a selection, falling back to a simple focus. */
-export const restoreSelection = (restore: RestoreSelection | null) => {
-  if (!restore || !restore.element.parentNode) {
-    return;
-  } else if (restore.method === 'setSelectionRange') {
-    restore.element.focus();
-    restore.element.setSelectionRange(...restore.arguments);
-  } else if (restore.method === 'range') {
-    const selection = window.getSelection()!;
-    restore.element.focus();
-    selection.removeAllRanges();
-    selection.addRange(restore.range);
-  } else {
-    restore.element.focus();
+export const restoreSelection = (selection: RestoreSelection | null) => {
+  if (selection && selection.element.parentNode) {
+    selection.restore();
   }
 };

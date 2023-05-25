@@ -13,10 +13,9 @@ it('should restore focused elements', () => {
     selection = snapshotSelection();
 
     // check selection matches expected state
-    expect(selection).to.deep.equal({
-      element: $el.get(0),
-      method: 'focus',
-    });
+    expect(selection?.element).to.deep.equal(
+      $el.get(0),
+    );
   });
 
   // unfocus the button
@@ -48,11 +47,9 @@ it('should restore input selections', () => {
     selection = snapshotSelection();
 
     // check selection matches expected state
-    expect(selection).to.deep.equal({
-      element: $el.get(0),
-      method: 'setSelectionRange',
-      arguments: [2, 2, 'none'],
-    });
+    expect(selection?.element).to.deep.equal(
+      $el.get(0),
+    );
   });
 
   // unfocus the input
