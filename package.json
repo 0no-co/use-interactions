@@ -32,7 +32,8 @@
     "test": "cypress run --component",
     "test:open": "cypress open --component",
     "build": "rollup -c scripts/rollup.config.mjs",
-    "prepublishOnly": "run-s check build"
+    "prepublishOnly": "run-s check build",
+    "prepare": "node ./scripts/prepare.js || true"
   },
   "prettier": {
     "singleQuote": true,
@@ -43,11 +44,6 @@
     "*.{js,ts}": "prettier --write",
     "*.json": "prettier --write",
     "*.md": "prettier --write"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged --quiet --relative"
-    }
   },
   "peerDependencies": {
     "react": ">= 16.8.0"
@@ -65,7 +61,6 @@
     "@types/react": "^17.0.42",
     "cypress": "^10.10.0",
     "cypress-real-events": "^1.7.2",
-    "husky-v4": "^4.3.8",
     "lint-staged": "^12.3.7",
     "npm-run-all": "^4.1.5",
     "prettier": "^2.6.0",
