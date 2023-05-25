@@ -42,10 +42,6 @@ export const getFocusTargets = (node: Element): HTMLElement[] =>
 export const hasFocusTargets = (node: Element): boolean =>
   isVisible(node) && !!getFocusTargets(node).length;
 
-/** Returns the first focus target that should be focused automatically. */
-export const getFirstFocusTarget = (node: HTMLElement): HTMLElement | null =>
-  getFocusTargets(node)[0] || null;
-
 /** Returns the first focus target that should be focused automatically in a modal/dialog. */
 export const getAutofocusTarget = (node: HTMLElement): HTMLElement => {
   const elements = node.querySelectorAll(focusableSelectors);

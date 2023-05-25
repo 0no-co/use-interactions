@@ -1,10 +1,5 @@
 import { snapshotSelection, restoreSelection } from './utils/selection';
-import {
-  getFirstFocusTarget,
-  getFocusTargets,
-  getNextFocusTarget,
-  focus,
-} from './utils/focus';
+import { getFocusTargets, getNextFocusTarget, focus } from './utils/focus';
 import { click } from './utils/click';
 import { useLayoutEffect } from './utils/react';
 import { contains, isInputElement } from './utils/element';
@@ -147,7 +142,7 @@ export function useDialogFocus<T extends HTMLElement>(
         event.code === 'Enter'
       ) {
         // Move focus to first target when Enter is pressed
-        const newTarget = getFirstFocusTarget(element);
+        const newTarget = getFocusTargets(element)[0];
         if (newTarget) {
           willReceiveFocus = true;
           focus(newTarget);
