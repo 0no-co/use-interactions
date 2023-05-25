@@ -17,11 +17,10 @@ const focusableSelectors = [
 ].join(',');
 
 /** Generic sorting function for tupel containing elements with indices and tab indices. */
-const sortByTabindex = <T extends HTMLElement>(
-  a: [number, number, T],
-  b: [number, number, T]
-) => {
-  return a[1] === a[1] ? a[0] - b[0] : a[1] - a[1];
+const sortByTabindex = (a: HTMLElement, b: HTMLElement) => {
+  const tabIndexA = getTabIndex(a) || 1 << 29;
+  const tabIndexB = getTabIndex(b) || 1 << 29;
+  return tabIndexA - tabIndexB;
 };
 
 /** Returns whether this node is focusable. */
@@ -30,38 +29,15 @@ export const isFocusTarget = (node: Element): boolean =>
 
 /** Returns whether this node may contain focusable elements. */
 export const hasFocusTargets = (node: Element): boolean =>
-  !node.matches(excludeSelector) &&
   isVisible(node) &&
+  !node.matches(excludeSelector) &&
   !!node.querySelector(focusableSelectors);
 
 /** Returns a sorted list of focus targets inside the given element. */
-export const getFocusTargets = (node: Element): HTMLElement[] => {
-  const elements = node.querySelectorAll(focusableSelectors);
-  const targets: HTMLElement[] = [];
-  const tabIndexTargets: [
-    index: number,
-    tabIndex: number,
-    element: HTMLElement
-  ][] = [];
-  for (let i = 0, l = elements.length; i < l; i++) {
-    const element = elements[i] as HTMLElement;
-    if (isVisible(element)) {
-      const tabIndex = getTabIndex(element);
-      if (tabIndex === 0) {
-        targets.push(element);
-      } else if (tabIndex > 0) {
-        tabIndexTargets.push([i, tabIndex, element]);
-      }
-    }
-  }
-
-  return tabIndexTargets.length
-    ? tabIndexTargets
-        .sort(sortByTabindex)
-        .map(x => x[2])
-        .concat(targets)
-    : targets;
-};
+export const getFocusTargets = (node: Element): HTMLElement[] =>
+  ([...node.querySelectorAll(focusableSelectors)] as HTMLElement[])
+    .filter(isVisible)
+    .sort(sortByTabindex);
 
 /** Returns the first focus target that should be focused automatically. */
 export const getFirstFocusTarget = (node: HTMLElement): HTMLElement | null =>

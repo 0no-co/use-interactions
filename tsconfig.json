@@ -7,7 +7,7 @@
     "forceConsistentCasingInFileNames": true,
     "noUnusedLocals": true,
     "noEmit": true,
-    "lib": ["dom", "esnext"],
+    "lib": ["dom", "dom.iterable", "esnext"],
     "jsx": "react",
     "module": "es2015",
     "moduleResolution": "node",
