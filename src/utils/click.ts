@@ -1,19 +1,10 @@
+import { clickableSelectors, focus } from './focus';
 import { contains } from './element';
-import { focus } from './focus';
-
-const clickableSelectors = [
-  '[contenteditable]',
-  'input:not([type="hidden"]):not([disabled])',
-  'button:not([disabled])',
-  'select:not([disabled])',
-  'a[href]',
-].join(',');
 
 export const click = (node: Element) => {
   const activeElement = document.activeElement;
   if (!activeElement || contains(node, activeElement)) {
     let target: Element | null = node;
-
     if (node.tagName === 'LABEL') {
       const forId = node.getAttribute('for');
       target = forId ? document.getElementById(forId) : null;

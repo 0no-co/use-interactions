@@ -5,8 +5,14 @@ export const inputSelectors =
   ',textarea:not([disabled])' +
   ',[contenteditable]';
 
-const focusableSelectors =
+export const clickableSelectors =
   inputSelectors +
+  ',select:not([disabled])' +
+  ',button:not([disabled])' +
+  ',a[href]';
+
+const focusableSelectors =
+  clickableSelectors +
   ',select:not([disabled])' +
   ',button:not([disabled])' +
   ',iframe' +

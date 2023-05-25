@@ -18,7 +18,7 @@ export const isInputElement = (node: Element): boolean =>
 export const contains = (
   owner: Element | EventTarget | null,
   node: Element | EventTarget | null
-) =>
+): owner is HTMLElement =>
   !!(
     node &&
     owner &&
