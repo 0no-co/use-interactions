@@ -3,7 +3,7 @@ import {
   snapshotSelection,
   restoreSelection,
 } from './utils/selection';
-import { getFirstFocusTarget, getFocusTargets, focus } from './utils/focus';
+import { getFocusTargets, focus } from './utils/focus';
 import { click } from './utils/click';
 import { useLayoutEffect } from './utils/react';
 import { contains, isInputElement } from './utils/element';
@@ -103,7 +103,7 @@ export function useMenuFocus<T extends HTMLElement>(
         event.code === 'Enter'
       ) {
         // Move focus to first target when enter is pressed
-        focus(getFirstFocusTarget(element));
+        focus(getFocusTargets(element)[0]);
       } else if (
         owner &&
         !contains(ref.current, owner) &&

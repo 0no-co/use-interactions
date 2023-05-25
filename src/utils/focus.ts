@@ -1,81 +1,53 @@
 import { getTabIndex, isVisible } from './element';
 
-const excludeSelector =
-  ':not([tabindex^="-"]):not([aria-modal]):not([role="dialog"])';
+export const inputSelectors =
+  'input:not([type="hidden"]):not([disabled])' +
+  ',textarea:not([disabled])' +
+  ',[contenteditable]';
 
-const focusableSelectors = [
-  'input:not([type="hidden"]):not([disabled])' + excludeSelector,
-  'select:not([disabled])' + excludeSelector,
-  'textarea:not([disabled])' + excludeSelector,
-  'button:not([disabled])' + excludeSelector,
-  'iframe' + excludeSelector,
-  'a[href]' + excludeSelector,
-  'audio[controls]' + excludeSelector,
-  'video[controls]' + excludeSelector,
-  '[contenteditable]' + excludeSelector,
-  '[tabindex]' + excludeSelector,
-].join(',');
+export const clickableSelectors =
+  inputSelectors +
+  ',select:not([disabled])' +
+  ',button:not([disabled])' +
+  ',a[href]';
+
+const focusableSelectors =
+  clickableSelectors +
+  ',select:not([disabled])' +
+  ',button:not([disabled])' +
+  ',iframe' +
+  ',a[href]' +
+  ',audio[controls]' +
+  ',video[controls]' +
+  ',[tabindex]';
 
 /** Generic sorting function for tupel containing elements with indices and tab indices. */
-const sortByTabindex = <T extends HTMLElement>(
-  a: [number, number, T],
-  b: [number, number, T]
-) => {
-  return a[1] === a[1] ? a[0] - b[0] : a[1] - a[1];
+const sortByTabindex = (a: HTMLElement, b: HTMLElement) => {
+  const tabIndexA = getTabIndex(a) || 1 << 29;
+  const tabIndexB = getTabIndex(b) || 1 << 29;
+  return tabIndexA - tabIndexB;
 };
 
 /** Returns whether this node is focusable. */
 export const isFocusTarget = (node: Element): boolean =>
   !!node.matches(focusableSelectors) && isVisible(node);
 
+/** Returns a sorted list of focus targets inside the given element. */
+export const getFocusTargets = (node: Element): HTMLElement[] =>
+  ([...node.querySelectorAll(focusableSelectors)] as HTMLElement[])
+    .filter(isVisible)
+    .sort(sortByTabindex);
+
 /** Returns whether this node may contain focusable elements. */
 export const hasFocusTargets = (node: Element): boolean =>
-  !node.matches(excludeSelector) &&
-  isVisible(node) &&
-  !!node.querySelector(focusableSelectors);
-
-/** Returns a sorted list of focus targets inside the given element. */
-export const getFocusTargets = (node: Element): HTMLElement[] => {
-  const elements = node.querySelectorAll(focusableSelectors);
-  const targets: HTMLElement[] = [];
-  const tabIndexTargets: [
-    index: number,
-    tabIndex: number,
-    element: HTMLElement
-  ][] = [];
-  for (let i = 0, l = elements.length; i < l; i++) {
-    const element = elements[i] as HTMLElement;
-    if (isVisible(element)) {
-      const tabIndex = getTabIndex(element);
-      if (tabIndex === 0) {
-        targets.push(element);
-      } else if (tabIndex > 0) {
-        tabIndexTargets.push([i, tabIndex, element]);
-      }
-    }
-  }
-
-  return tabIndexTargets.length
-    ? tabIndexTargets
-        .sort(sortByTabindex)
-        .map(x => x[2])
-        .concat(targets)
-    : targets;
-};
-
-/** Returns the first focus target that should be focused automatically. */
-export const getFirstFocusTarget = (node: HTMLElement): HTMLElement | null =>
-  getFocusTargets(node)[0] || null;
+  isVisible(node) && !!getFocusTargets(node).length;
 
 /** Returns the first focus target that should be focused automatically in a modal/dialog. */
 export const getAutofocusTarget = (node: HTMLElement): HTMLElement => {
   const elements = node.querySelectorAll(focusableSelectors);
-  for (let i = 0, l = elements.length; i < l; i++) {
-    const element = elements[i] as HTMLElement;
-    if (isVisible(element) && element.matches('[autofocus]')) return element;
-  }
-
-  node.setAttribute('tabindex', '-1');
+  for (const element of elements)
+    if (isVisible(element) && element.autofocus) return element;
+  node.tabIndex = -1;
   return node;
 };
 
@@ -90,9 +62,11 @@ export const getNextFocusTarget = (
     while (
       (next = reverse ? next.previousElementSibling : next.nextElementSibling)
     ) {
-      if (isVisible(next) && !!next.matches(focusableSelectors)) {
+      if (!isVisible(next)) {
+        continue;
+      } else if (!!next.matches(focusableSelectors)) {
         return next as HTMLElement;
-      } else if (hasFocusTargets(next)) {
+      } else {
         const targets = getFocusTargets(next);
         if (targets.length) return targets[reverse ? targets.length - 1 : 0];
       }

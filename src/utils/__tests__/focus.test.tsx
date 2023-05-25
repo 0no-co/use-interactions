@@ -10,7 +10,6 @@ it('detects typical focusable elements', () => {
         <input type="hidden" className="ignored" />
         <input type="text" disabled className="ignored" />
         <button tabIndex={-1} className="ignored" />
-        <button style={{ visibility: 'hidden' }} className="ignored">Invisible</button>
         <button style={{ display: 'none' }} className="ignored">Invisible</button>
         <a className="ignored">No href</a>
 

@@ -4,11 +4,7 @@ import {
   restoreSelection,
 } from './utils/selection';
 
-import {
-  getAutofocusTarget,
-  getFirstFocusTarget,
-  getFocusTargets,
-} from './utils/focus';
+import { getAutofocusTarget, getFocusTargets } from './utils/focus';
 
 import { useLayoutEffect } from './utils/react';
 import { contains } from './utils/element';
@@ -49,7 +45,7 @@ export function useModalFocus<T extends HTMLElement>(
         contains(element, event.target) &&
         !contains(element, event.relatedTarget)
       ) {
-        const target = getFirstFocusTarget(element);
+        const target = getFocusTargets(element)[0];
         if (target) target.focus();
       }
     }
