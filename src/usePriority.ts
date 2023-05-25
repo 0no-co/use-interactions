@@ -42,13 +42,12 @@ export const makePriorityHook = () => {
       priorityStack.push(element);
       priorityStack.sort(sortByHierarchy);
       listeners.add(onChange);
-      listeners.forEach(fn => fn());
+      for (const listener of listeners) listener();
 
       return () => {
-        const index = priorityStack.indexOf(element);
-        priorityStack.splice(index, 1);
+        priorityStack.splice(priorityStack.indexOf(element), 1);
         listeners.delete(onChange);
-        listeners.forEach(fn => fn());
+        for (const listener of listeners) listener();
       };
     }, [ref.current, hasPriority, isDisabled]);
 
