@@ -4,10 +4,9 @@ import {
   restoreSelection,
 } from './utils/selection';
 
-import { getAutofocusTarget, getFocusTargets } from './utils/focus';
-
+import { getActive, getAutofocusTarget, getFocusTargets } from './utils/focus';
 import { useLayoutEffect } from './utils/react';
-import { contains } from './utils/element';
+import { contains, getRoot } from './utils/element';
 import { makePriorityHook } from './usePriority';
 import { Ref } from './types';
 
@@ -25,13 +24,13 @@ export function useModalFocus<T extends HTMLElement>(
   const hasPriority = usePriority(ref, disabled);
 
   useLayoutEffect(() => {
-    if (disabled) return;
+    const { current: element } = ref;
+    if (!element || disabled) return;
 
+    const root = getRoot(element);
+    const active = getActive();
     let selection: RestoreSelection | null = null;
-    if (
-      !document.activeElement ||
-      !contains(ref.current, document.activeElement)
-    ) {
+    if (!active || !contains(element, active)) {
       const newTarget = ref.current ? getAutofocusTarget(ref.current) : null;
       selection = snapshotSelection();
       if (newTarget) newTarget.focus();
@@ -55,7 +54,7 @@ export function useModalFocus<T extends HTMLElement>(
       if (!hasPriority.current || !element || event.defaultPrevented) return;
 
       if (event.code === 'Tab') {
-        const activeElement = document.activeElement as HTMLElement;
+        const activeElement = getActive()!;
         const targets = getFocusTargets(element);
         const index = targets.indexOf(activeElement);
         if (event.shiftKey && index === 0) {
@@ -68,13 +67,13 @@ export function useModalFocus<T extends HTMLElement>(
       }
     }
 
-    document.body.addEventListener('focusout', onBlur);
-    document.addEventListener('keydown', onKeyDown);
+    root.addEventListener('focusout', onBlur);
+    root.addEventListener('keydown', onKeyDown);
 
     return () => {
-      document.body.removeEventListener('focusout', onBlur);
-      document.removeEventListener('keydown', onKeyDown);
+      root.removeEventListener('focusout', onBlur);
+      root.removeEventListener('keydown', onKeyDown);
       restoreSelection(selection);
     };
-  }, [ref, hasPriority, disabled]);
+  }, [ref.current, hasPriority, disabled]);
 }

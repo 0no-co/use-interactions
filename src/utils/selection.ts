@@ -1,4 +1,5 @@
 import { contains } from './element';
+import { getActive } from './focus';
 
 export interface RestoreSelection {
   element: HTMLElement;
@@ -13,7 +14,7 @@ const hasSelection = (node: HTMLElement): node is HTMLInputElement =>
 export const snapshotSelection = (
   node?: HTMLElement | null
 ): RestoreSelection | null => {
-  const target = document.activeElement as HTMLElement | null;
+  const target = getActive();
   const element = node && target && node !== target ? node : target;
   if (!element || !target) {
     return null;

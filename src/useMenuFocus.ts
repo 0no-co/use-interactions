@@ -3,10 +3,11 @@ import {
   snapshotSelection,
   restoreSelection,
 } from './utils/selection';
-import { getFocusTargets, focus } from './utils/focus';
+
+import { getActive, getFocusTargets, focus } from './utils/focus';
 import { click } from './utils/click';
 import { useLayoutEffect } from './utils/react';
-import { contains, isInputElement } from './utils/element';
+import { contains, getRoot, isInputElement } from './utils/element';
 import { Ref } from './types';
 
 export interface MenuFocusOptions {
@@ -25,6 +26,7 @@ export function useMenuFocus<T extends HTMLElement>(
     const { current: element } = ref;
     if (!element || disabled) return;
 
+    const root = getRoot(element);
     let selection: RestoreSelection | null = null;
 
     function onFocus(event: FocusEvent) {
@@ -57,7 +59,7 @@ export function useMenuFocus<T extends HTMLElement>(
 
       const owner =
         (ownerRef && ownerRef.current) || (selection && selection.element);
-      const active = document.activeElement as HTMLElement;
+      const active = getActive();
       const focusTargets = getFocusTargets(element);
       if (
         !focusTargets.length ||
@@ -73,7 +75,7 @@ export function useMenuFocus<T extends HTMLElement>(
       ) {
         // Implement forward movement in focus targets
         event.preventDefault();
-        const focusIndex = focusTargets.indexOf(active);
+        const focusIndex = focusTargets.indexOf(active!);
         const nextIndex =
           focusIndex < focusTargets.length - 1 ? focusIndex + 1 : 0;
         focus(focusTargets[nextIndex]);
@@ -83,7 +85,7 @@ export function useMenuFocus<T extends HTMLElement>(
       ) {
         // Implement backward movement in focus targets
         event.preventDefault();
-        const focusIndex = focusTargets.indexOf(active);
+        const focusIndex = focusTargets.indexOf(active!);
         const nextIndex =
           focusIndex > 0 ? focusIndex - 1 : focusTargets.length - 1;
         focus(focusTargets[nextIndex]);
@@ -115,7 +117,7 @@ export function useMenuFocus<T extends HTMLElement>(
         restoreSelection(selection);
       } else if (
         (event.code === 'Enter' || event.code === 'Space') &&
-        focusTargets.indexOf(active) > -1 &&
+        focusTargets.indexOf(active!) > -1 &&
         !isInputElement(active)
       ) {
         // Implement virtual click / activation for list items
@@ -132,14 +134,14 @@ export function useMenuFocus<T extends HTMLElement>(
       }
     }
 
-    document.body.addEventListener('focusin', onFocus);
-    document.addEventListener('keydown', onKey);
+    root.addEventListener('focusin', onFocus);
+    root.addEventListener('keydown', onKey);
 
     return () => {
-      document.body.removeEventListener('focusin', onFocus);
-      document.removeEventListener('keydown', onKey);
+      root.removeEventListener('focusin', onFocus);
+      root.removeEventListener('keydown', onKey);
 
-      const active = document.activeElement as HTMLElement;
+      const active = getActive();
       if (!active || contains(element, active)) {
         restoreSelection(selection);
       }

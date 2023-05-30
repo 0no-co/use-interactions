@@ -1,4 +1,4 @@
-import { isFocusTarget } from './utils/focus';
+import { isFocusTarget, getActive } from './utils/focus';
 import { useLayoutEffect } from './utils/react';
 import { click } from './utils/click';
 import { contains, isInputElement } from './utils/element';
@@ -26,7 +26,7 @@ export function useOptionFocus<T extends HTMLElement>(
     function onKey(event: KeyboardEvent) {
       if (!element || event.defaultPrevented || event.isComposing) return;
 
-      const active = document.activeElement as HTMLElement;
+      const active = getActive();
       if (!isFocusTarget(element) || !contains(active, element)) {
         // Do nothing if the current item is not a target or not focused
         return;

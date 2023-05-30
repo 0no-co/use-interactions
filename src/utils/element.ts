@@ -12,8 +12,8 @@ export const isVisible = (node: Element): node is HTMLElement =>
   node.matches(excludeSelector) && node.getClientRects().length > 0;
 
 /** Returns whether an element accepts text input. */
-export const isInputElement = (node: Element): boolean =>
-  node.matches(inputSelectors);
+export const isInputElement = (node: Element | null): boolean =>
+  !!node && node.matches(inputSelectors);
 
 export const contains = (
   owner: Element | EventTarget | null,
@@ -24,3 +24,7 @@ export const contains = (
     owner &&
     (owner === node || (owner as Element).contains(node as Element))
   );
+
+/** Returns the root element of the input element */
+export const getRoot = (node: Element): HTMLElement =>
+  (node.getRootNode() || document.body) as HTMLElement;

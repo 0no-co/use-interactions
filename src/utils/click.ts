@@ -1,8 +1,10 @@
-import { clickableSelectors, focus } from './focus';
+import { clickableSelectors, focus, getActive } from './focus';
 import { contains } from './element';
 
-export const click = (node: Element) => {
-  const activeElement = document.activeElement;
+export const click = (node: Element | null) => {
+  if (!node) return;
+
+  const activeElement = getActive();
   if (!activeElement || contains(node, activeElement)) {
     let target: Element | null = node;
     if (node.tagName === 'LABEL') {

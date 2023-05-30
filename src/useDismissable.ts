@@ -1,6 +1,6 @@
 import { useRef } from 'react';
 import { useLayoutEffect } from './utils/react';
-import { contains } from './utils/element';
+import { contains, getRoot } from './utils/element';
 import { makePriorityHook } from './usePriority';
 import { Ref } from './types';
 
@@ -29,6 +29,7 @@ export function useDismissable<T extends HTMLElement>(
     const { current: element } = ref;
     if (!element || disabled) return;
 
+    const root = getRoot(element);
     let willLoseFocus = false;
 
     function onFocusOut(event: FocusEvent) {
@@ -82,23 +83,23 @@ export function useDismissable<T extends HTMLElement>(
     }
 
     if (focusLoss) {
-      document.body.addEventListener('focusout', onFocusOut, true);
-      document.body.addEventListener('focusin', onFocusIn, true);
+      root.addEventListener('focusout', onFocusOut, true);
+      root.addEventListener('focusin', onFocusIn, true);
     }
 
-    document.addEventListener('click', onClick, true);
-    document.addEventListener('touchstart', onClick, true);
-    document.addEventListener('keydown', onKey, true);
+    root.addEventListener('click', onClick, true);
+    root.addEventListener('touchstart', onClick, true);
+    root.addEventListener('keydown', onKey, true);
 
     return () => {
       if (focusLoss) {
-        document.body.removeEventListener('focusout', onFocusOut, true);
-        document.body.removeEventListener('focusin', onFocusIn, true);
+        root.removeEventListener('focusout', onFocusOut, true);
+        root.removeEventListener('focusin', onFocusIn, true);
       }
 
-      document.removeEventListener('click', onClick, true);
-      document.removeEventListener('touchstart', onClick, true);
-      document.removeEventListener('keydown', onKey, true);
+      root.removeEventListener('click', onClick, true);
+      root.removeEventListener('touchstart', onClick, true);
+      root.removeEventListener('keydown', onKey, true);
     };
   }, [ref.current, hasPriority, disabled, focusLoss]);
 }

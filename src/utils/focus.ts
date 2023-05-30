@@ -82,7 +82,16 @@ export const getNextFocusTarget = (
 export const focus = (node: Element | null) => {
   if (node) {
     (node as HTMLElement).focus();
-  } else if (document.activeElement) {
-    (document.activeElement as HTMLElement).blur();
+  } else {
+    const active = getActive();
+    if (active) active.blur();
   }
+};
+
+/** Returns the currently active element, even if it’s contained in a shadow root. */
+export const getActive = (): HTMLElement | null => {
+  let element = document.activeElement;
+  while (element && element.shadowRoot)
+    element = element.shadowRoot.activeElement;
+  return element as HTMLElement | null;
 };
