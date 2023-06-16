@@ -36,7 +36,7 @@ export function useDismissable<T extends HTMLElement>(
       const { target, relatedTarget } = event;
       if (
         !event.defaultPrevented &&
-        (relatedTarget || willLoseFocus) &&
+        willLoseFocus &&
         contains(element, target) &&
         !contains(element, relatedTarget)
       ) {
@@ -47,7 +47,12 @@ export function useDismissable<T extends HTMLElement>(
 
     function onFocusIn(event: FocusEvent) {
       const { target } = event;
-      if (!event.defaultPrevented && !contains(element, target)) {
+      if (
+        !event.defaultPrevented &&
+        willLoseFocus &&
+        !contains(element, target)
+      ) {
+        willLoseFocus = false;
         onDismissRef.current(event);
       }
     }
