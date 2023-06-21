@@ -87,24 +87,27 @@ export function useDismissable<T extends HTMLElement>(
       }
     }
 
+    const opts = { capture: true } as any;
+    const touchOpts = { capture: true, passive: false } as any;
+
     if (focusLoss) {
-      root.addEventListener('focusout', onFocusOut, true);
-      root.addEventListener('focusin', onFocusIn, true);
+      root.addEventListener('focusout', onFocusOut, opts);
+      root.addEventListener('focusin', onFocusIn, opts);
     }
 
-    root.addEventListener('click', onClick, true);
-    root.addEventListener('touchstart', onClick, true);
-    root.addEventListener('keydown', onKey, true);
+    root.addEventListener('click', onClick, opts);
+    root.addEventListener('touchstart', onClick, touchOpts);
+    root.addEventListener('keydown', onKey, opts);
 
     return () => {
       if (focusLoss) {
-        root.removeEventListener('focusout', onFocusOut, true);
-        root.removeEventListener('focusin', onFocusIn, true);
+        root.removeEventListener('focusout', onFocusOut, opts);
+        root.removeEventListener('focusin', onFocusIn, opts);
       }
 
-      root.removeEventListener('click', onClick, true);
-      root.removeEventListener('touchstart', onClick, true);
-      root.removeEventListener('keydown', onKey, true);
+      root.removeEventListener('click', onClick, opts);
+      root.removeEventListener('touchstart', onClick, touchOpts);
+      root.removeEventListener('keydown', onKey, opts);
     };
   }, [ref.current, hasPriority, disabled, focusLoss]);
 }
