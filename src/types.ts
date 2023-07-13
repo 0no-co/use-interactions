@@ -1,6 +1,6 @@
 import type { CSSProperties } from 'react';
 
-export interface Ref<T extends HTMLElement> {
+export interface Ref<T extends HTMLElement | SVGElement> {
   readonly current: T | null;
 }
 
